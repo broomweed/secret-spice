@@ -1,0 +1,7 @@
+*.o
+*.swp
+lsfml_src/
+lsfml_build/
+images/logo.gif
+fonts/goliath.ttf
+images/arrow-*
