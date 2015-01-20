@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "TextBox.hpp"
 #include "TileMap.hpp"
+#include "GameObject.hpp"
 #define SCRWIDTH 800
 #define SCRHEIGHT 600
 
@@ -13,7 +14,9 @@ int main(int argc, char **argv) {
     window.setView(camera);
     sf::Texture gear;
     sf::Texture tiles;
+    sf::Texture dude;
     sf::Sprite sprite;
+    sf::Sprite dudeSprite;
 
     const int level[] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -57,6 +60,8 @@ int main(int argc, char **argv) {
     int charWidths[41] =
        //a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9 ! ? . , space
         {5,5,5,5,5,5,5,5,4,4,5,5,6,5,5,5,5,5,5,6,5,6,6,6,6,5,5,4,5,5,5,5,5,5,5,5,2,5,2,2,2};
+       // a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9 ! ? . , space -- widespace
+       //{6,6,6,6,6,6,6,6,5,5,6,6,7,6,6,6,6,6,6,7,6,7,7,7,7,6,6,5,6,6,6,6,6,6,6,6,3,6,3,3,3};
 
     if (!textbox.setFont(std::string("images/font.png"), 5, charWidths,
             std::string("abcdefghijklmnopqrstuvwxyz0123456789!?., "))) {
@@ -64,7 +69,7 @@ int main(int argc, char **argv) {
         return -2;
     }
 
-    textbox.setText(std::string("hello, this is text! it is really long but maybe it will go around to the next line! or not. but it does!"));
+    textbox.setText(std::string("lorem ipsum dolor sit amet. my name is miles. i should really get some lowercase letters."));
 
     bool arrows[4] = { false, false, false, false };
 
@@ -73,6 +78,11 @@ int main(int argc, char **argv) {
     }
     gear.setSmooth(false);
 
+    if (!dude.loadFromFile("images/floater.png")) {
+        fprintf(stderr, "something went wrong (1 1/2)!\n");
+    }
+    dude.setSmooth(false);
+
     if (!tiles.loadFromFile("images/tilemap.png")) {
         fprintf(stderr, "something went wrong (2)!\n");
     }
@@ -80,6 +90,10 @@ int main(int argc, char **argv) {
 
     sprite.setTexture(gear);
     sprite.setPosition(0.0f, 0.0f);
+
+    dudeSprite.setTexture(dude);
+
+    GameObject dudeObject(dudeSprite, sf::Vector2i(64, 48), sf::Rect<int>(0, 14, 16, 16));
 
     window.setVerticalSyncEnabled(true);
 
@@ -217,6 +231,7 @@ int main(int argc, char **argv) {
         window.clear(sf::Color::Black);
         window.draw(tilemap);
         window.draw(sprite);
+        window.draw(dudeObject);
         window.draw(textbox);
         window.display();
 
