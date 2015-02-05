@@ -77,6 +77,9 @@ class GameObject : public sf::Drawable {
 
         sf::Rect<float> absLoc; // the absolute location of the object's bounding
                                 // box in relation to global coordinates
+        int sceneIndex;         // the index of it in the scene std::vector
+                                // so we can look it up in the scene using only
+                                // the object itself.
         unsigned int drawDepth; // the depth that it will be drawn at -- 0 is the
                                 // furthest to the back (next to the background),
                                 // higher numbers are drawn in that order

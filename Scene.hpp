@@ -18,10 +18,26 @@ class Scene : public sf::Drawable {
 
         void add(GameObject *obj) {
             objs.push_back(obj);
+            obj->sceneIndex = objs.size()-1;
         }
 
         std::vector<GameObject*> getObjs() {
             return objs;
+        }
+
+        void move_sprite(GameObject obj, float hmove, float vmove) {
+            int index = obj.sceneIndex;
+            objs[index]->move(hmove, vmove);
+            for (int i = 0; i < objs.size(); i++) {
+                if ((objs[index]->getPosition().y < objs[i]->getPosition().y
+                            && objs[index]->drawDepth > objs[i]->drawDepth)
+                        || (objs[index]->getPosition().y > objs[i]->getPosition().y
+                            && objs[index]->drawDepth < objs[i]->drawDepth)) {
+                    unsigned int tmp = objs[index]->drawDepth;
+                    objs[index]->drawDepth = objs[i]->drawDepth;
+                    objs[i]->drawDepth = tmp;
+                }
+            }
         }
 
     protected:

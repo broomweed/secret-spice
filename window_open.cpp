@@ -73,17 +73,19 @@ int main(int argc, char **argv) {
 
     bool arrows[4] = { false, false, false, false };
 
-    GameObject gear("images/gear.png", sf::Vector2f(0, 0), sf::Rect<float>(0, 0, 16, 16), 2);
+    GameObject guy("images/daniel.png", sf::Vector2f(16, 16), sf::Rect<float>(16, 16, 16, 16), 1);
 
     if (!tiles.loadFromFile("images/tilemap.png")) {
         fprintf(stderr, "something went wrong (2)!\n");
     }
     tiles.setSmooth(false);
 
-    GameObject dude("images/floater.png", sf::Vector2f(64, 48), sf::Rect<float>(0, 14, 16, 16), 3);
+    GameObject npc1("images/daniel.png", sf::Vector2f(64, 48), sf::Rect<float>(16, 16, 16, 16), 3);
+    GameObject npc2("images/daniel.png", sf::Vector2f(200, 24), sf::Rect<float>(16, 16, 16, 16), 2);
 
-    scene.add(&gear);
-    scene.add(&dude);
+    scene.add(&guy);
+    scene.add(&npc1);
+    scene.add(&npc2);
 
     window.setVerticalSyncEnabled(true);
 
@@ -141,7 +143,7 @@ int main(int argc, char **argv) {
         float hmove = 0.0f;
         if (arrows[0]) {
             if (arrows[1] || arrows[3]) {
-                vmove -= 0.71f;
+                vmove -= 0.71f; // sin(45)
             } else {
                 vmove -= 1.0f;
             }
@@ -172,50 +174,52 @@ int main(int argc, char **argv) {
         if (hmove > 0) {
             // RIGHT
             if (!walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            gear.getPosition().x + gear.absLoc.width + hmove,
-                            gear.getPosition().y + 1))] // if we don't put the +1/-1 here, it checks the
+                            guy.getPosition().x + guy.absLoc.width + hmove,
+                            guy.getPosition().y + 1))] // if we don't put the +1/-1 here, it checks the
                                                           // exact corners and won't let you fit through a
                                                           // 1-tile-wide space
                     || !walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            gear.getPosition().x + gear.absLoc.width + hmove,
-                            gear.getPosition().y + gear.absLoc.height - 1))]) {
+                            guy.getPosition().x + guy.absLoc.width + hmove,
+                            guy.getPosition().y + guy.absLoc.height - 1))]) {
                 hmove = 0.0f;
             }
         } else if (hmove < 0) {
             // LEFT
             if (!walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            gear.getPosition().x + hmove,
-                            gear.getPosition().y + 1))]
+                            guy.getPosition().x + hmove,
+                            guy.getPosition().y + 1))]
                     || !walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            gear.getPosition().x + hmove,
-                            gear.getPosition().y + gear.absLoc.height - 1))]) {
+                            guy.getPosition().x + hmove,
+                            guy.getPosition().y + guy.absLoc.height - 1))]) {
                 hmove = 0.0f;
             }
         }
         if (vmove > 0) {
             // DOWN
             if (!walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            gear.getPosition().x + 1,
-                            gear.getPosition().y + gear.absLoc.height + vmove))]
+                            guy.getPosition().x + 1,
+                            guy.getPosition().y + guy.absLoc.height + vmove))]
                     || !walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            gear.getPosition().x + gear.absLoc.width - 1,
-                            gear.getPosition().y + gear.absLoc.height + vmove))]) {
+                            guy.getPosition().x + guy.absLoc.width - 1,
+                            guy.getPosition().y + guy.absLoc.height + vmove))]) {
                 vmove = 0.0f;
             }
         } else if (vmove < 0) {
             // UP
             if (!walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            gear.getPosition().x + 1,
-                            gear.getPosition().y + vmove))]
+                            guy.getPosition().x + 1,
+                            guy.getPosition().y + vmove))]
                     || !walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            gear.getPosition().x + gear.absLoc.width - 1,
-                            gear.getPosition().y + vmove))]) {
+                            guy.getPosition().x + guy.absLoc.width - 1,
+                            guy.getPosition().y + vmove))]) {
                 vmove = 0.0f;
             }
         }
 
-        gear.move(hmove, vmove);
-        camera.setCenter(gear.getPosition().x, gear.getPosition().y);
+        if (hmove != 0.0f || vmove != 0.0f) {
+            scene.move_sprite(guy, hmove, vmove);
+        }
+        camera.setCenter(guy.getPosition().x, guy.getPosition().y);
 
         textbox.update();
 
@@ -229,4 +233,3 @@ int main(int argc, char **argv) {
 
     return 0;
 }
-
