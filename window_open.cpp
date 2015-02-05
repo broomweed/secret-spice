@@ -73,15 +73,15 @@ int main(int argc, char **argv) {
 
     bool arrows[4] = { false, false, false, false };
 
-    GameObject guy("images/daniel.png", sf::Vector2f(16, 16), sf::Rect<float>(16, 16, 16, 16), 1);
+    GameObject guy("images/daniel.png", sf::Vector2f(16, 16), sf::Rect<float>(0, 16, 16, 16), 1);
 
     if (!tiles.loadFromFile("images/tilemap.png")) {
         fprintf(stderr, "something went wrong (2)!\n");
     }
     tiles.setSmooth(false);
 
-    GameObject npc1("images/daniel.png", sf::Vector2f(64, 48), sf::Rect<float>(16, 16, 16, 16), 3);
-    GameObject npc2("images/daniel.png", sf::Vector2f(200, 24), sf::Rect<float>(16, 16, 16, 16), 2);
+    GameObject npc1("images/daniel.png", sf::Vector2f(64, 48), sf::Rect<float>(0, 16, 16, 16), 3);
+    GameObject npc2("images/daniel.png", sf::Vector2f(200, 24), sf::Rect<float>(0, 16, 16, 16), 2);
 
     scene.add(&guy);
     scene.add(&npc1);
