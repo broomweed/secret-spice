@@ -4,19 +4,19 @@
 #include "TextBox.hpp"
 #include "TileMap.hpp"
 #include "GameObject.hpp"
+#include "Scene.hpp"
 #define SCRWIDTH 800
 #define SCRHEIGHT 600
+
+using std::string;
 
 int main(int argc, char **argv) {
     sf::RenderWindow window(sf::VideoMode(SCRWIDTH, SCRHEIGHT), "My favorite window");
     // DANG THIS IS THE BEST THING:
     sf::View camera(sf::FloatRect(0, 0, SCRWIDTH/2, SCRHEIGHT/2));
     window.setView(camera);
-    sf::Texture gear;
     sf::Texture tiles;
-    sf::Texture dude;
-    sf::Sprite sprite;
-    sf::Sprite dudeSprite;
+    Scene scene;
 
     const int level[] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -63,37 +63,27 @@ int main(int argc, char **argv) {
        // a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9 ! ? . , space -- widespace
        //{6,6,6,6,6,6,6,6,5,5,6,6,7,6,6,6,6,6,6,7,6,7,7,7,7,6,6,5,6,6,6,6,6,6,6,6,3,6,3,3,3};
 
-    if (!textbox.setFont(std::string("images/font.png"), 5, charWidths,
-            std::string("abcdefghijklmnopqrstuvwxyz0123456789!?., "))) {
+    if (!textbox.setFont(string("images/font.png"), 5, charWidths,
+            string("abcdefghijklmnopqrstuvwxyz0123456789!?., "))) {
         fprintf(stderr, "Something went wrong with the font!\n");
         return -2;
     }
 
-    textbox.setText(std::string("lorem ipsum dolor sit amet. my name is miles. i should really get some lowercase letters."));
+    textbox.setText(string("lorem ipsum dolor sit amet. my name is miles. i should really get some lowercase letters."));
 
     bool arrows[4] = { false, false, false, false };
 
-    if (!gear.loadFromFile("images/gear.png")) {
-        fprintf(stderr, "something went wrong!\n");
-    }
-    gear.setSmooth(false);
-
-    if (!dude.loadFromFile("images/floater.png")) {
-        fprintf(stderr, "something went wrong (1 1/2)!\n");
-    }
-    dude.setSmooth(false);
+    GameObject gear("images/gear.png", sf::Vector2f(0, 0), sf::Rect<float>(0, 0, 16, 16), 2);
 
     if (!tiles.loadFromFile("images/tilemap.png")) {
         fprintf(stderr, "something went wrong (2)!\n");
     }
     tiles.setSmooth(false);
 
-    sprite.setTexture(gear);
-    sprite.setPosition(0.0f, 0.0f);
+    GameObject dude("images/floater.png", sf::Vector2f(64, 48), sf::Rect<float>(0, 14, 16, 16), 3);
 
-    dudeSprite.setTexture(dude);
-
-    GameObject dudeObject(dudeSprite, sf::Vector2i(64, 48), sf::Rect<int>(0, 14, 16, 16));
+    scene.add(&gear);
+    scene.add(&dude);
 
     window.setVerticalSyncEnabled(true);
 
@@ -182,56 +172,56 @@ int main(int argc, char **argv) {
         if (hmove > 0) {
             // RIGHT
             if (!walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            sprite.getPosition().x + sprite.getLocalBounds().width + hmove,
-                            sprite.getPosition().y + 1))] // if we don't put the +1/-1 here, it checks the
+                            gear.getPosition().x + gear.absLoc.width + hmove,
+                            gear.getPosition().y + 1))] // if we don't put the +1/-1 here, it checks the
                                                           // exact corners and won't let you fit through a
                                                           // 1-tile-wide space
                     || !walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            sprite.getPosition().x + sprite.getLocalBounds().width + hmove,
-                            sprite.getPosition().y + sprite.getLocalBounds().height - 1))]) {
+                            gear.getPosition().x + gear.absLoc.width + hmove,
+                            gear.getPosition().y + gear.absLoc.height - 1))]) {
                 hmove = 0.0f;
             }
         } else if (hmove < 0) {
             // LEFT
             if (!walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            sprite.getPosition().x + hmove,
-                            sprite.getPosition().y + 1))]
+                            gear.getPosition().x + hmove,
+                            gear.getPosition().y + 1))]
                     || !walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            sprite.getPosition().x + hmove,
-                            sprite.getPosition().y + sprite.getLocalBounds().height - 1))]) {
+                            gear.getPosition().x + hmove,
+                            gear.getPosition().y + gear.absLoc.height - 1))]) {
                 hmove = 0.0f;
             }
         }
         if (vmove > 0) {
             // DOWN
             if (!walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            sprite.getPosition().x + 1,
-                            sprite.getPosition().y + sprite.getLocalBounds().height + vmove))]
+                            gear.getPosition().x + 1,
+                            gear.getPosition().y + gear.absLoc.height + vmove))]
                     || !walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            sprite.getPosition().x + sprite.getLocalBounds().width - 1,
-                            sprite.getPosition().y + sprite.getLocalBounds().height + vmove))]) {
+                            gear.getPosition().x + gear.absLoc.width - 1,
+                            gear.getPosition().y + gear.absLoc.height + vmove))]) {
                 vmove = 0.0f;
             }
         } else if (vmove < 0) {
             // UP
             if (!walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            sprite.getPosition().x + 1,
-                            sprite.getPosition().y + vmove))]
+                            gear.getPosition().x + 1,
+                            gear.getPosition().y + vmove))]
                     || !walkable[tilemap.tile_id_at_point(sf::Vector2f(
-                            sprite.getPosition().x + sprite.getLocalBounds().width - 1,
-                            sprite.getPosition().y + vmove))]) {
+                            gear.getPosition().x + gear.absLoc.width - 1,
+                            gear.getPosition().y + vmove))]) {
                 vmove = 0.0f;
             }
         }
-        sprite.move(sf::Vector2f(hmove, vmove));
-        camera.setCenter(sprite.getPosition().x, sprite.getPosition().y);
+
+        gear.move(hmove, vmove);
+        camera.setCenter(gear.getPosition().x, gear.getPosition().y);
 
         textbox.update();
 
         window.clear(sf::Color::Black);
         window.draw(tilemap);
-        window.draw(sprite);
-        window.draw(dudeObject);
+        window.draw(scene);
         window.draw(textbox);
         window.display();
 

@@ -1,3 +1,5 @@
+#ifndef SPICE_GAMEOBJECT_HPP
+#define SPICE_GAMEOBJECT_HPP
 #include <SFML/Graphics.hpp>
 
 /* This is a drawable object (a character, a piece of scenery, a building, etc).
@@ -7,24 +9,43 @@
 class GameObject : public sf::Drawable {
     public:
         GameObject(sf::Sprite sprite_,
-                sf::Vector2i position_,
-                sf::Rect<int> boxLoc_) {
+                sf::Vector2f position_,
+                sf::Rect<float> boxLoc_,
+                unsigned int drawDepth_) {
+            drawDepth = drawDepth_;
             sprite = sprite_;
             position = position_;
             boxLoc = boxLoc_;
-            sprite.setPosition(sf::Vector2f(position.x - boxLoc.left, position.y - boxLoc.top));
+            sprite.setPosition(position.x - boxLoc.left, position.y - boxLoc.top);
             absLoc = sf::Rect<float>(position.x, position.y, boxLoc.width, boxLoc.height);
         }
 
-        bool hitTest(sf::Vector2f point) {
+        GameObject(std::string filename,
+                sf::Vector2f position_,
+                sf::Rect<float> boxLoc_,
+                unsigned int drawDepth_) {
+            if (!tex.loadFromFile(filename)) {
+                std::cerr << "Error loading from file " << filename << "\n";
+            }
+            tex.setSmooth(false);
+            sprite.setTexture(tex);
+
+            drawDepth = drawDepth_;
+            position = position_;
+            boxLoc = boxLoc_;
+            sprite.setPosition(position.x - boxLoc.left, position.y - boxLoc.top);
+            absLoc = sf::Rect<float>(position.x, position.y, boxLoc.width, boxLoc.height);
+        }
+
+        bool hitTest(sf::Vector2f point) const {
             return absLoc.contains(point);
         }
 
-        bool hitTest(GameObject obj) {
+        bool hitTest(GameObject obj) const {
             return absLoc.intersects(obj.absLoc);
         }
 
-        sf::Sprite getSprite() {
+        sf::Sprite getSprite() const {
             return sprite;
         }
 
@@ -32,25 +53,38 @@ class GameObject : public sf::Drawable {
             sprite = sprite_;
         }
 
-        void setPosition(sf::Vector2i position_) {
+        void setPosition(sf::Vector2f position_) {
             position = position_;
             sprite.setPosition(sf::Vector2f(position.x - boxLoc.left, position.y - boxLoc.top));
             absLoc = sf::Rect<float>(position.x, position.y, boxLoc.width, boxLoc.height);
         }
 
-        sf::Vector2i getPosition() {
+        void setPosition(float x, float y) {
+            setPosition(sf::Vector2f(x, y));
+        }
+
+        sf::Vector2f getPosition() const {
             return position;
+        }
+
+        void move(sf::Vector2f dp) {
+            setPosition(getPosition().x + dp.x, getPosition().y + dp.y);
+        }
+
+        void move(float dx, float dy) {
+            setPosition(getPosition().x + dx, getPosition().y + dy);
         }
 
         sf::Rect<float> absLoc; // the absolute location of the object's bounding
                                 // box in relation to global coordinates
-        int drawDepth;          // the depth that it will be drawn at -- 0 is the
+        unsigned int drawDepth; // the depth that it will be drawn at -- 0 is the
                                 // furthest to the back (next to the background),
                                 // higher numbers are drawn in that order
 
     protected:
-        sf::Vector2i position;  // the offset of the corner of the bounding box's location
-        sf::Rect<int> boxLoc;   // the size and local-coordinates of the bounding
+        sf::Texture tex;        // the texture of the sprite, in case it's loaded from file
+        sf::Vector2f position;  // the offset of the corner of the bounding box's location
+        sf::Rect<float> boxLoc; // the size and local-coordinates of the bounding
                                 // box in relation to the drawn sprite
         sf::Sprite sprite;      // the sprite that will be drawn
 
@@ -59,3 +93,4 @@ class GameObject : public sf::Drawable {
             target.draw(sprite, states);
         }
 };
+#endif // SPICE_GAMEOBJECT_HPP
