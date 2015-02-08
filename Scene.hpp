@@ -25,10 +25,17 @@ class Scene : public sf::Drawable {
             return objs;
         }
 
+        void update() {
+            for (int i = 0; i < objs.size(); i++) {
+                objs[i]->update();
+            }
+        }
+
         void move_sprite(GameObject obj, float hmove, float vmove) {
             int index = obj.sceneIndex;
             objs[index]->move(hmove, vmove);
             for (int i = 0; i < objs.size(); i++) {
+                // Swap objects if they passed behind/in front of each other
                 if ((objs[index]->getPosition().y < objs[i]->getPosition().y
                             && objs[index]->drawDepth > objs[i]->drawDepth)
                         || (objs[index]->getPosition().y > objs[i]->getPosition().y

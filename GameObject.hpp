@@ -1,6 +1,7 @@
 #ifndef SPICE_GAMEOBJECT_HPP
 #define SPICE_GAMEOBJECT_HPP
 #include <SFML/Graphics.hpp>
+#include "Animation.hpp"
 
 /* This is a drawable object (a character, a piece of scenery, a building, etc).
  * It's basically similar to a sprite except that it has offsets so it is drawn
@@ -8,32 +9,15 @@
  * interacting with other objects. */
 class GameObject : public sf::Drawable {
     public:
-        GameObject(sf::Sprite sprite_,
+        GameObject(Animation anim_,
                 sf::Vector2f position_,
                 sf::Rect<float> boxLoc_,
                 unsigned int drawDepth_) {
             drawDepth = drawDepth_;
-            sprite = sprite_;
+            anim = anim_;
             position = position_;
             boxLoc = boxLoc_;
-            sprite.setPosition(position.x - boxLoc.left, position.y - boxLoc.top);
-            absLoc = sf::Rect<float>(position.x, position.y, boxLoc.width, boxLoc.height);
-        }
-
-        GameObject(std::string filename,
-                sf::Vector2f position_,
-                sf::Rect<float> boxLoc_,
-                unsigned int drawDepth_) {
-            if (!tex.loadFromFile(filename)) {
-                std::cerr << "Error loading from file " << filename << "\n";
-            }
-            tex.setSmooth(false);
-            sprite.setTexture(tex);
-
-            drawDepth = drawDepth_;
-            position = position_;
-            boxLoc = boxLoc_;
-            sprite.setPosition(position.x - boxLoc.left, position.y - boxLoc.top);
+            anim.setPosition(position.x - boxLoc.left, position.y - boxLoc.top);
             absLoc = sf::Rect<float>(position.x, position.y, boxLoc.width, boxLoc.height);
         }
 
@@ -46,16 +30,16 @@ class GameObject : public sf::Drawable {
         }
 
         sf::Sprite getSprite() const {
-            return sprite;
+            return anim.getCurrentSprite();
         }
 
-        void setSprite(sf::Sprite sprite_) {
-            sprite = sprite_;
+        Animation getAnimation() const {
+            return anim;
         }
 
         void setPosition(sf::Vector2f position_) {
             position = position_;
-            sprite.setPosition(sf::Vector2f(position.x - boxLoc.left, position.y - boxLoc.top));
+            anim.setPosition(sf::Vector2f(position.x - boxLoc.left, position.y - boxLoc.top));
             absLoc = sf::Rect<float>(position.x, position.y, boxLoc.width, boxLoc.height);
         }
 
@@ -67,12 +51,19 @@ class GameObject : public sf::Drawable {
             return position;
         }
 
+        /* Don't use this method if the object is located within a scene
+           (ie pretty much always) -- it doesn't switch draw-depths properly. */
         void move(sf::Vector2f dp) {
             setPosition(getPosition().x + dp.x, getPosition().y + dp.y);
         }
 
+        /* Likewise. */
         void move(float dx, float dy) {
             setPosition(getPosition().x + dx, getPosition().y + dy);
+        }
+
+        void update() {
+            anim.update();
         }
 
         sf::Rect<float> absLoc; // the absolute location of the object's bounding
@@ -85,15 +76,14 @@ class GameObject : public sf::Drawable {
                                 // higher numbers are drawn in that order
 
     protected:
-        sf::Texture tex;        // the texture of the sprite, in case it's loaded from file
         sf::Vector2f position;  // the offset of the corner of the bounding box's location
         sf::Rect<float> boxLoc; // the size and local-coordinates of the bounding
-                                // box in relation to the drawn sprite
-        sf::Sprite sprite;      // the sprite that will be drawn
+                                // box in relation to the drawn animation
+        Animation anim;         // the animation that it will be drawn with
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
-            // draw the sprite, which has had its position set correctly (we hope)
-            target.draw(sprite, states);
+            // draw the animation, which has had its position set correctly (we hope)
+            target.draw(anim, states);
         }
 };
 #endif // SPICE_GAMEOBJECT_HPP
