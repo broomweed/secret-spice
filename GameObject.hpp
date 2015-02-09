@@ -17,8 +17,7 @@ class GameObject : public sf::Drawable {
             anim = anim_;
             position = position_;
             boxLoc = boxLoc_;
-            anim.setPosition(position.x - boxLoc.left, position.y - boxLoc.top);
-            absLoc = sf::Rect<float>(position.x, position.y, boxLoc.width, boxLoc.height);
+            setPosition(position_);
         }
 
         bool hitTest(sf::Vector2f point) const {

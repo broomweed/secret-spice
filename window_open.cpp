@@ -5,6 +5,7 @@
 #include "TileMap.hpp"
 #include "GameObject.hpp"
 #include "Scene.hpp"
+#include "SpriteSheet.hpp"
 #define SCRWIDTH 800
 #define SCRHEIGHT 600
 
@@ -73,18 +74,13 @@ int main(int argc, char **argv) {
 
     bool arrows[4] = { false, false, false, false };
 
-    sf::Texture dan1, dan2;
-    dan1.loadFromFile("images/daniel1.png");
-    dan2.loadFromFile("images/daniel2.png");
-    sf::Sprite sdan1, sdan2;
-    sdan1.setTexture(dan1);
-    sdan2.setTexture(dan2);
+    SpriteSheet dan("images/dan.png", 3, 8);
 
     Animation ani = Animation();
-    ani.addFrame(sdan1, 250);
-    ani.addFrame(sdan2, 250);
+    ani.addFrame(dan.getSprite(0, 0), 250);
+    ani.addFrame(dan.getSprite(2, 0), 250);
 
-    GameObject guy(ani, sf::Vector2f(0, 16), sf::Rect<float>(0, 16, 16, 16), 1);
+    GameObject guy(ani, sf::Vector2f(0, 16), sf::Rect<float>(4, 16, 16, 16), 1);
 
     if (!tiles.loadFromFile("images/tilemap.png")) {
         fprintf(stderr, "something went wrong (2)!\n");
