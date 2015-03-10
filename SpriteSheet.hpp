@@ -1,3 +1,5 @@
+#ifndef SPICE_SPRITESHEET_HPP
+#define SPICE_SPRITESHEET_HPP
 #include <SFML/Graphics.hpp>
 
 using std::string;
@@ -11,7 +13,7 @@ using std::vector;
    The one thing about this is that sprites in a sprite sheet have to be carefully
    positioned so that it doesn't mess up the offsets (e.g. I had to adjust the dan.png
    spritesheet and shift some things around or else the sprites would wiggle back
-   and forth annoyingly. */
+   and forth annoyingly.) */
 class SpriteSheet {
     public:
         SpriteSheet(sf::Texture tex_,
@@ -58,6 +60,10 @@ class SpriteSheet {
         }
 
         sf::Sprite getSprite(int x, int y) {
+            if (x >= width || y >= height || x < 0 || y < 0) {
+                std::cerr << "access out of bounds @ " << x << ", " << y << std::endl;
+                return sf::Sprite();
+            }
             return sprites[y*width+x];
         }
 
@@ -65,9 +71,11 @@ class SpriteSheet {
             return sprites[index];
         }
 
+        int width;
+        int height;
+
     protected:
         sf::Texture tex;
         vector<sf::Sprite> sprites;
-        int width;
-        int height;
 };
+#endif // SPICE_SPRITESHEET_HPP

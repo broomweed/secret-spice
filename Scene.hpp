@@ -1,12 +1,12 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
-#include "GameObject.hpp"
+#include "Thing.hpp"
 
-/* This is a scene that contains a series of GameObjects. This is what handles
+/* This is a scene that contains a series of Things. This is what handles
  * drawing in order of drawDepth. */
 class Scene : public sf::Drawable {
     public:
-        Scene(GameObject* objs_, int size) {
+        Scene(Thing* objs_, int size) {
             for (int i = 0; i < size; i++) {
                 add(&objs_[i]);
             }
@@ -16,12 +16,12 @@ class Scene : public sf::Drawable {
             // pass
         }
 
-        void add(GameObject *obj) {
+        void add(Thing *obj) {
             objs.push_back(obj);
             obj->sceneIndex = objs.size()-1;
         }
 
-        std::vector<GameObject*> getObjs() {
+        std::vector<Thing*> getObjs() {
             return objs;
         }
 
@@ -31,24 +31,26 @@ class Scene : public sf::Drawable {
             }
         }
 
-        void move_sprite(GameObject obj, float hmove, float vmove) {
-            int index = obj.sceneIndex;
-            objs[index]->move(hmove, vmove);
-            for (int i = 0; i < objs.size(); i++) {
-                // Swap objects if they passed behind/in front of each other
-                if ((objs[index]->getPosition().y < objs[i]->getPosition().y
-                            && objs[index]->drawDepth > objs[i]->drawDepth)
-                        || (objs[index]->getPosition().y > objs[i]->getPosition().y
-                            && objs[index]->drawDepth < objs[i]->drawDepth)) {
-                    unsigned int tmp = objs[index]->drawDepth;
-                    objs[index]->drawDepth = objs[i]->drawDepth;
-                    objs[i]->drawDepth = tmp;
+        void move_sprite(Thing obj, float hmove, float vmove) {
+            if (hmove != 0.0f || vmove != 0.0f) {
+                int index = obj.sceneIndex;
+                objs[index]->move(hmove, vmove);
+                for (int i = 0; i < objs.size(); i++) {
+                    // Swap objects if they passed behind/in front of each other
+                    if ((objs[index]->getPosition().y < objs[i]->getPosition().y
+                                && objs[index]->drawDepth > objs[i]->drawDepth)
+                            || (objs[index]->getPosition().y > objs[i]->getPosition().y
+                                && objs[index]->drawDepth < objs[i]->drawDepth)) {
+                        unsigned int tmp = objs[index]->drawDepth;
+                        objs[index]->drawDepth = objs[i]->drawDepth;
+                        objs[i]->drawDepth = tmp;
+                    }
                 }
             }
         }
 
     protected:
-        std::vector<GameObject*> objs;
+        std::vector<Thing*> objs;
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
             /* there is DEFINITELY a more efficient way to do this */
@@ -57,7 +59,7 @@ class Scene : public sf::Drawable {
                (i.e. be the gatekeeper for swapping depths in a scene) But then the
                drawing depths should probably be contained in this class, not in
                the objects themselves. Which could be done, with like:
-                    struct depthObj { uint depth; GameObject* obj; }
+                    struct depthObj { uint depth; Thing* obj; }
                or something. Then objs would be a std::vector<struct depthObj>. */
             /* (see, I'm learning this c++ stuff!!) */
             /* OR, Or an alternative way to do this would be to have an 'update'

@@ -43,6 +43,15 @@ class Animation : public sf::Drawable {
             timeElapsed.restart();
         }
 
+        Animation(sf::Sprite sprite) {
+            totalTime = sf::Time();
+            currTime = sf::Time();
+            currFrameIndex = 0;
+            setPosition(sf::Vector2f(0, 0));
+            timeElapsed.restart();
+            addFrame(sprite, 1000);
+        }
+
         vector<AnimationFrame> frames;
 
         void addFrame(sf::Sprite sprite, int duration) {

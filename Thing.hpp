@@ -1,0 +1,76 @@
+#ifndef SPICE_THING_HPP
+#define SPICE_THING_HPP
+#include "Animation.hpp"
+/* This is the last common ancestor of GameObject and Character.
+   Actually most things from GameObject go in here. However, they
+   move in ways that are incompatible, so one cannot inherit from
+   the other. Hence this class. */
+class Thing : public sf::Drawable {
+    public:
+        bool hitTest(sf::Vector2f point) const {
+            return absLoc.contains(point);
+        }
+
+        bool hitTest(Thing obj) const {
+            return absLoc.intersects(obj.absLoc);
+        }
+
+        virtual void setPosition(sf::Vector2f position_) {
+            position = position_;
+            anim.setPosition(sf::Vector2f(position.x - boxLoc.left, position.y - boxLoc.top));
+            absLoc = sf::Rect<float>(position.x, position.y, boxLoc.width, boxLoc.height);
+        }
+
+        void setPosition(float x, float y) {
+            setPosition(sf::Vector2f(x, y));
+        }
+
+        sf::Vector2f getPosition() const {
+            return position;
+        }
+
+        sf::Sprite getSprite() const {
+            return anim.getCurrentSprite();
+        }
+
+        void setAnimation(Animation& anim_) {
+            anim = anim_;
+        }
+
+        Animation getAnimation() const {
+            return anim;
+        }
+
+        void update() {
+            anim.update();
+        }
+
+        int sceneIndex;         // the index of it in the scene std::vector
+                                // so we can look it up in the scene using only
+                                // the object itself.
+        unsigned int drawDepth; // the depth that it will be drawn at -- 0 is the
+                                // furthest to the back (next to the background),
+                                // higher numbers are drawn in that order
+        sf::Rect<float> absLoc; // the absolute location of the object's bounding
+                                // box in relation to global coordinates
+
+        virtual void move(float dx, float dy) {
+            setPosition(getPosition().x + dx, getPosition().y + dy);
+        }
+
+        virtual void move(sf::Vector2f dp) {
+            move(dp.x, dp.y);
+        }
+
+   protected:
+        sf::Vector2f position;  // the offset of the corner of the bounding box's location
+        sf::Rect<float> boxLoc; // the size and local-coordinates of the bounding
+                                // box in relation to the drawn animation
+        Animation anim;         // the animation that it will be drawn with
+
+        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
+            // draw the animation, which has had its position set correctly (we hope)
+            target.draw(anim, states);
+        }
+};
+#endif

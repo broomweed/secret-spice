@@ -1,9 +1,11 @@
 #include <iostream>
 #include <cstdio>
 #include <SFML/Graphics.hpp>
+#include "Thing.hpp"
 #include "TextBox.hpp"
 #include "TileMap.hpp"
 #include "GameObject.hpp"
+#include "Character.hpp"
 #include "Scene.hpp"
 #include "SpriteSheet.hpp"
 #define SCRWIDTH 800
@@ -20,39 +22,18 @@ int main(int argc, char **argv) {
     Scene scene;
 
     const int level[] = {
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1,
-        1, 2, 1, 1, 2, 2, 2, 1, 1, 1, 2, 1, 1, 2, 2, 1,
-        1, 2, 1, 1, 2, 1, 2, 1, 2, 9, 7, 7, 8, 3, 2, 1,
-        1, 2, 2, 2, 1, 2, 2, 1, 2, 6, 4, 4, 5, 3, 2, 1,
-        1, 1, 1, 2, 2, 3, 3, 2, 2, 6, 4, 4, 5, 2, 2, 1,
-        1, 1, 1, 2, 2, 3, 3, 3, 3, 6, 4, 4, 5, 3, 3, 2,
-        1, 1, 2, 2, 2, 3, 3, 3, 3,11,12,12,10, 3, 2, 2,
-        1, 1, 2, 2, 2, 3, 3, 3, 3, 2, 1, 1, 2, 3, 3, 2,
-        1, 1, 1, 2, 2, 3, 3, 3, 3, 2, 2, 1, 2, 3, 3, 3,
-        1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3,
-        1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+        0,0,1,2,0,0,0,0,3,4,5,6,7,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,9,10,11,0,0,0,8,12,13,14,15,0,0,0,1,2,0,0,0,0,0,0,0,0,0,16,17,18,19,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,21,22,23,24,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,27,28,29,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,9,0,8,12,13,14,15,0,0,0,0,0,0,9,10,11,0,0,0,0,0,0,0,0,0,16,17,2,0,0,0,0,0,0,0,0,0,0,16,17,18,19,20,0,0,0,0,0,0,0,0,21,22,0,0,0,0,0,0,0,0,0,0,0,21,22,23,24,25,0,0,0,0,0,0,0,0,0,26,0,0,9,10,11,0,0,0,0,0,0,0,26,27,28,29,0,0,0,0,0,0,0,0,3,4,0,16,17,18,19,20,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,1,2,0,8,12,0,21,22,23,24,25,0,0,0,0,0,8,12,13,14,15,0,0,0,0,0,0,0,0,0,0,0,0,26,27,28,29,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,12,13,14,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,10,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,17,18,19,20,0,0,0,0,0,0,0,9,10,11,0,0,0,0,0,0,0,0,0,0,0,21,22,23,24,25,0,0,0,0,0,0,16,17,18,19,20,0,0,0,0,9,10,11,0,0,0,0,26,27,28,29,0,0,0,0,0,0,21,22,23,24,25,0,0,0,16,17,18,19,20,0,0,3,4,5,6,7,0,0,0,0,0,0,0,26,27,28,29,0,0,0,21,22,23,24,25,1,2,8,12,13,14,15
     };
 
-    bool walkable[14] = {
-        false,  // 0 : empty
-        true,   // 1 : grassland
-        true,   // 2 : sand
-        false,  // 3 : water
-        true,   // 4 : bridge
-        false,  // 5 : bridge-right-edge
-        false,  // 6 : bridge-left-edge
-        true,   // 7 : bridge-top
-        true,   // 8 : bridge-top-right-edge
-        true,   // 9 : bridge-top-left-edge
-        true,   // 10: bridge-bottom-right-edge
-        true,   // 11: bridge-bottom-left-edge
-        true,   // 12: bridge-bottom
-        false,  // 13: reserved
+    bool walkable[30] = {
+        true, true, true, true, true, false, true, true,        // 0-7
+        true, false, false, false, true, false, true, true,     // 8-15
+        false, false, false, false, false, false, false, false, // 16-23
+        false, false, true, false, true, true                   // 24-29
     };
 
     TileMap tilemap;
-    if (!tilemap.load("images/tilemap.png", sf::Vector2u(16, 16), level, 16, 12)) {
+    if (!tilemap.load("images/tests/trees/tiles.png", sf::Vector2u(16, 16), level, 26, 20)) {
         fprintf(stderr, "something went wrong with the tileset!\n");
         return -1;
     }
@@ -75,20 +56,17 @@ int main(int argc, char **argv) {
     bool arrows[4] = { false, false, false, false };
 
     SpriteSheet dan("images/dan.png", 3, 8);
+    dan.getSprite(1,1);
 
-    Animation ani = Animation();
-    ani.addFrame(dan.getSprite(0, 0), 250);
-    ani.addFrame(dan.getSprite(2, 0), 250);
-
-    GameObject guy(ani, sf::Vector2f(0, 16), sf::Rect<float>(4, 16, 16, 16), 1);
+    Character guy(dan, sf::Vector2f(0, 16), sf::Rect<float>(4, 16, 16, 16), 1);
 
     if (!tiles.loadFromFile("images/tilemap.png")) {
         fprintf(stderr, "something went wrong (2)!\n");
     }
     tiles.setSmooth(false);
 
-    GameObject npc1(ani, sf::Vector2f(64, 48), sf::Rect<float>(0, 16, 16, 16), 3);
-    GameObject npc2(ani, sf::Vector2f(200, 24), sf::Rect<float>(0, 16, 16, 16), 2);
+    Character npc1(dan, sf::Vector2f(64, 48), sf::Rect<float>(0, 16, 16, 16), 3);
+    Character npc2(dan, sf::Vector2f(200, 24), sf::Rect<float>(0, 16, 16, 16), 2);
 
     scene.add(&guy);
     scene.add(&npc1);
@@ -223,9 +201,7 @@ int main(int argc, char **argv) {
             }
         }
 
-        if (hmove != 0.0f || vmove != 0.0f) {
-            scene.move_sprite(guy, hmove, vmove);
-        }
+        scene.move_sprite(guy, hmove, vmove);
         camera.setCenter(guy.getPosition().x, guy.getPosition().y);
 
         textbox.update();
