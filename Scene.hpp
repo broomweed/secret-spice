@@ -34,7 +34,7 @@ class Scene : public sf::Drawable {
             }
         }
 
-        void move_sprite(Thing obj, float hmove, float vmove) {
+        void move_sprite(Thing& obj, float hmove, float vmove) {
             if (hmove != 0.0f || vmove != 0.0f) {
                 int index = obj.sceneIndex;
                 objs[index]->move(hmove, vmove);
@@ -49,6 +49,8 @@ class Scene : public sf::Drawable {
                         objs[i]->drawDepth = tmp;
                     }
                 }
+            } else {
+                objs[obj.sceneIndex]->stopMoving();
             }
         }
 

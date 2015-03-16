@@ -63,6 +63,11 @@ class Thing : public sf::Drawable {
             return sf::Vector2f(xspeed, yspeed);
         }
 
+        virtual void stopMoving() {
+            xspeed = 0;
+            yspeed = 0;
+        }
+
         virtual void move(float dx, float dy) {
             setPosition(getPosition().x + dx, getPosition().y + dy);
         }

@@ -91,6 +91,12 @@ class Character : public Thing {
             anims = anims_;
         }
 
+        void stopMoving() {
+            xspeed = 0;
+            yspeed = 0;
+            move(0.0f, 0.0f);
+        }
+
     protected:
         int animation_id;
         int direction;
