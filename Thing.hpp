@@ -54,6 +54,15 @@ class Thing : public sf::Drawable {
         sf::Rect<float> absLoc; // the absolute location of the object's bounding
                                 // box in relation to global coordinates
 
+        void setSpeed(float dx, float dy) {
+            xspeed = dx;
+            yspeed = dy;
+        }
+
+        sf::Vector2f getSpeed() {
+            return sf::Vector2f(xspeed, yspeed);
+        }
+
         virtual void move(float dx, float dy) {
             setPosition(getPosition().x + dx, getPosition().y + dy);
         }
@@ -67,6 +76,8 @@ class Thing : public sf::Drawable {
         sf::Rect<float> boxLoc; // the size and local-coordinates of the bounding
                                 // box in relation to the drawn animation
         Animation anim;         // the animation that it will be drawn with
+        float xspeed;
+        float yspeed;
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
             // draw the animation, which has had its position set correctly (we hope)

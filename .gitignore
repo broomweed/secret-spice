@@ -1,7 +1,11 @@
 *.o
 *.swp
+*.swo
 lsfml_src/
 lsfml_build/
 images/logo.gif
 fonts/goliath.ttf
 images/arrow-*
+*_min*
+*Min*
+images/ignore/*

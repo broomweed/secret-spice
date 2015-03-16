@@ -42,8 +42,6 @@ int main(int argc, char **argv) {
     int charWidths[41] =
        //a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9 ! ? . , space
         {5,5,5,5,5,5,5,5,4,4,5,5,6,5,5,5,5,5,5,6,5,6,6,6,6,5,5,4,5,5,5,5,5,5,5,5,2,5,2,2,2};
-       // a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9 ! ? . , space -- widespace
-       //{6,6,6,6,6,6,6,6,5,5,6,6,7,6,6,6,6,6,6,7,6,7,7,7,7,6,6,5,6,6,6,6,6,6,6,6,3,6,3,3,3};
 
     if (!textbox.setFont(string("images/font.png"), 5, charWidths,
             string("abcdefghijklmnopqrstuvwxyz0123456789!?., "))) {
@@ -201,7 +199,7 @@ int main(int argc, char **argv) {
             }
         }
 
-        scene.move_sprite(guy, hmove, vmove);
+        guy.setSpeed(hmove, vmove);
         camera.setCenter(guy.getPosition().x, guy.getPosition().y);
 
         textbox.update();

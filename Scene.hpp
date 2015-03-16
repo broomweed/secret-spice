@@ -26,7 +26,10 @@ class Scene : public sf::Drawable {
         }
 
         void update() {
+            last_loop = loop_time.getElapsedTime();
+            loop_time.restart();
             for (int i = 0; i < objs.size(); i++) {
+                move_sprite((*objs[i]), objs[i]->getSpeed().x * last_loop.asSeconds() * 30, objs[i]->getSpeed().y * last_loop.asSeconds() * 30);
                 objs[i]->update();
             }
         }
@@ -51,6 +54,8 @@ class Scene : public sf::Drawable {
 
     protected:
         std::vector<Thing*> objs;
+        sf::Clock loop_time;
+        sf::Time last_loop;
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
             /* there is DEFINITELY a more efficient way to do this */
