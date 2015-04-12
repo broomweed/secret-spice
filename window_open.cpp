@@ -22,18 +22,17 @@ int main(int argc, char **argv) {
     Scene scene;
 
     const int level[] = {
-        0,0,1,2,0,0,0,0,3,4,5,6,7,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,9,10,11,0,0,0,8,12,13,14,15,0,0,0,1,2,0,0,0,0,0,0,0,0,0,16,17,18,19,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,21,22,23,24,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,27,28,29,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,9,0,8,12,13,14,15,0,0,0,0,0,0,9,10,11,0,0,0,0,0,0,0,0,0,16,17,2,0,0,0,0,0,0,0,0,0,0,16,17,18,19,20,0,0,0,0,0,0,0,0,21,22,0,0,0,0,0,0,0,0,0,0,0,21,22,23,24,25,0,0,0,0,0,0,0,0,0,26,0,0,9,10,11,0,0,0,0,0,0,0,26,27,28,29,0,0,0,0,0,0,0,0,3,4,0,16,17,18,19,20,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,1,2,0,8,12,0,21,22,23,24,25,0,0,0,0,0,8,12,13,14,15,0,0,0,0,0,0,0,0,0,0,0,0,26,27,28,29,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,12,13,14,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,10,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,17,18,19,20,0,0,0,0,0,0,0,9,10,11,0,0,0,0,0,0,0,0,0,0,0,21,22,23,24,25,0,0,0,0,0,0,16,17,18,19,20,0,0,0,0,9,10,11,0,0,0,0,26,27,28,29,0,0,0,0,0,0,21,22,23,24,25,0,0,0,16,17,18,19,20,0,0,3,4,5,6,7,0,0,0,0,0,0,0,26,27,28,29,0,0,0,21,22,23,24,25,1,2,8,12,13,14,15
+        0,0,1,2,0,0,0,0,3,4,5,6,7,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,1,2,0,8,9,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,14,15,16,17,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,8,9,10,11,12
     };
 
-    bool walkable[30] = {
-        true, true, true, true, true, false, true, true,        // 0-7
-        true, false, false, false, true, false, true, true,     // 8-15
-        false, false, false, false, false, false, false, false, // 16-23
-        false, false, true, false, true, true                   // 24-29
+    bool walkable[18] = {
+        true, true, true, true, true, true,
+        true, true, true, true, true, true,
+        true, true, true, true, true, true,
     };
 
     TileMap tilemap;
-    if (!tilemap.load("images/tests/trees/tiles.png", sf::Vector2u(16, 16), level, 26, 20)) {
+    if (!tilemap.load("images/tests/trees2/tiles.png", sf::Vector2u(16, 16), level, 26, 20)) {
         fprintf(stderr, "something went wrong with the tileset!\n");
         return -1;
     }
@@ -56,19 +55,27 @@ int main(int argc, char **argv) {
     SpriteSheet dan("images/dan.png", 3, 8);
     dan.getSprite(1,1);
 
-    Character guy(dan, sf::Vector2f(0, 16), sf::Rect<float>(4, 16, 16, 16), 1);
+    Character guy(dan, sf::Vector2f(0, 16), sf::Rect<float>(5, 24, 14, 8), 1);
 
     if (!tiles.loadFromFile("images/tilemap.png")) {
         fprintf(stderr, "something went wrong (2)!\n");
     }
     tiles.setSmooth(false);
 
-    Character npc1(dan, sf::Vector2f(64, 48), sf::Rect<float>(0, 16, 16, 16), 3);
-    Character npc2(dan, sf::Vector2f(200, 24), sf::Rect<float>(0, 16, 16, 16), 2);
+    Character npc1(dan, sf::Vector2f(100, 150), sf::Rect<float>(5, 24, 14, 8), 3);
+    Character npc2(dan, sf::Vector2f(200, 24), sf::Rect<float>(5, 24, 14, 8), 2);
 
     scene.add(&guy);
     scene.add(&npc1);
     scene.add(&npc2);
+
+    GameObject tree("images/tests/tree.png", sf::Vector2f(0, 0), sf::Rect<float>(12, 66, 39, 12), 4);
+
+    scene.add_static(&tree, sf::Vector2f(150, 10));
+    scene.add_static(&tree, sf::Vector2f(38, 90));
+    scene.add_static(&tree, sf::Vector2f(198, 170));
+    scene.add_static(&tree, sf::Vector2f(38, 218));
+    scene.add_static(&tree, sf::Vector2f(358, 298));
 
     window.setVerticalSyncEnabled(true);
 
@@ -122,34 +129,34 @@ int main(int argc, char **argv) {
 
         }
 
-        float vmove = 0.0f;
-        float hmove = 0.0f;
+        float vmove = 0.0;
+        float hmove = 0.0;
         if (arrows[0]) {
             if (arrows[1] || arrows[3]) {
-                vmove -= 0.71f; // sin(45)
+                vmove -= 0.71; // sin(45)
             } else {
-                vmove -= 1.0f;
+                vmove -= 1.0;
             }
         }
         if (arrows[1]) {
             if (arrows[0] || arrows[2]) {
-                hmove -= 0.71f;
+                hmove -= 0.71;
             } else {
-                hmove -= 1.0f;
+                hmove -= 1.0;
             }
         }
         if (arrows[2]) {
             if (arrows[1] || arrows[3]) {
-                vmove += 0.71f;
+                vmove += 0.71;
             } else {
-                vmove += 1.0f;
+                vmove += 1.0;
             }
         }
         if (arrows[3]) {
             if (arrows[0] || arrows[2]) {
-                hmove += 0.71f;
+                hmove += 0.71;
             } else {
-                hmove += 1.0f;
+                hmove += 1.0;
             }
         }
         // basically check if they can move to a certain point in the direction. It checks the 2 corners
@@ -164,7 +171,7 @@ int main(int argc, char **argv) {
                     || !walkable[tilemap.tile_id_at_point(sf::Vector2f(
                             guy.getPosition().x + guy.absLoc.width + hmove,
                             guy.getPosition().y + guy.absLoc.height - 1))]) {
-                hmove = 0.0f;
+                hmove = 0.0;
             }
         } else if (hmove < 0) {
             // LEFT
@@ -174,7 +181,7 @@ int main(int argc, char **argv) {
                     || !walkable[tilemap.tile_id_at_point(sf::Vector2f(
                             guy.getPosition().x + hmove,
                             guy.getPosition().y + guy.absLoc.height - 1))]) {
-                hmove = 0.0f;
+                hmove = 0.0;
             }
         }
         if (vmove > 0) {
@@ -185,7 +192,7 @@ int main(int argc, char **argv) {
                     || !walkable[tilemap.tile_id_at_point(sf::Vector2f(
                             guy.getPosition().x + guy.absLoc.width - 1,
                             guy.getPosition().y + guy.absLoc.height + vmove))]) {
-                vmove = 0.0f;
+                vmove = 0.0;
             }
         } else if (vmove < 0) {
             // UP
@@ -195,15 +202,16 @@ int main(int argc, char **argv) {
                     || !walkable[tilemap.tile_id_at_point(sf::Vector2f(
                             guy.getPosition().x + guy.absLoc.width - 1,
                             guy.getPosition().y + vmove))]) {
-                vmove = 0.0f;
+                vmove = 0.0;
             }
         }
 
         guy.setSpeed(hmove, vmove);
-        camera.setCenter(guy.getPosition().x, guy.getPosition().y);
 
         textbox.update();
         scene.update();
+        camera.setCenter(guy.getPosition());
+        window.setView(camera);
 
         window.clear(sf::Color::Black);
         window.draw(tilemap);

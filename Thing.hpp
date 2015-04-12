@@ -15,6 +15,10 @@ class Thing : public sf::Drawable {
             return absLoc.intersects(obj.absLoc);
         }
 
+        bool hitTest(sf::Rect<float> rect) const {
+            return absLoc.intersects(rect);
+        }
+
         virtual void setPosition(sf::Vector2f position_) {
             position = position_;
             anim.setPosition(sf::Vector2f(position.x - boxLoc.left, position.y - boxLoc.top));
@@ -67,6 +71,14 @@ class Thing : public sf::Drawable {
             xspeed = 0;
             yspeed = 0;
         }
+        
+        virtual void turn(float dx, float dy) {
+            // pass
+        }
+
+        virtual void turn(sf::Vector2f dp) {
+            turn(dp.x, dp.y);
+        }
 
         virtual void move(float dx, float dy) {
             setPosition(getPosition().x + dx, getPosition().y + dy);
@@ -76,10 +88,11 @@ class Thing : public sf::Drawable {
             move(dp.x, dp.y);
         }
 
-   protected:
-        sf::Vector2f position;  // the offset of the corner of the bounding box's location
         sf::Rect<float> boxLoc; // the size and local-coordinates of the bounding
                                 // box in relation to the drawn animation
+
+   protected:
+        sf::Vector2f position;  // the offset of the corner of the bounding box's location
         Animation anim;         // the animation that it will be drawn with
         float xspeed;
         float yspeed;

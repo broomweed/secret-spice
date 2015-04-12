@@ -13,6 +13,8 @@ class Character : public Thing {
             direction = 0;
             animation_id = 0;
             Thing::setAnimation(anims[animation_id][direction]);
+            xspeed = 0;
+            yspeed = 0;
            /* 5 4 3
                \|/
               6- -2
@@ -31,13 +33,14 @@ class Character : public Thing {
             direction = 0;
             animation_id = 0;
             Thing::setAnimation(anims[animation_id][direction]);
+            stopMoving();
         }
 
         void move(sf::Vector2f dp) {
             move(dp.x, dp.y);
         }
 
-        void move(float dx, float dy) {
+        void turn(float dx, float dy) {
             int old_animation_id = animation_id;
             int old_direction = direction;
             animation_id = 1;
@@ -70,6 +73,9 @@ class Character : public Thing {
             if (old_animation_id != animation_id || old_direction != direction) {
                 Thing::setAnimation(anims[animation_id][direction]);
             }
+        }
+
+        void move(float dx, float dy) {
             setPosition(getPosition().x + dx, getPosition().y + dy);
         }
 

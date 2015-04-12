@@ -1,8 +1,10 @@
-# This script converts an image into a tilemap using ImageMagick!
 #!/usr/bin/env perl
+# This script converts an image into a tilemap using ImageMagick!
 
 use Capture::Tiny ":all";
 use File::Copy "move";
+
+die "usage: $0 filename folder-to-extract-to" if @ARGV != 2;
 
 my $filename = $ARGV[0];
 my $folder = $ARGV[1];

@@ -17,6 +17,23 @@ class GameObject : public Thing {
             position = position_;
             boxLoc = boxLoc_;
             setPosition(position_);
+            stopMoving();
+        }
+
+        GameObject(std::string filename,
+                sf::Vector2f position_,
+                sf::Rect<float> boxLoc_,
+                unsigned int drawDepth_) {
+            if(!tex.loadFromFile(filename)) {
+                std::cerr << "Error loading filename " << filename << std::endl;
+            }
+            anim = Animation();
+            anim.addFrame(sf::Sprite(tex), 1000);
+            drawDepth = drawDepth_;
+            position = position_;
+            boxLoc = boxLoc_;
+            setPosition(position_);
+            stopMoving();
         }
 
         /* Don't use this method if the object is located within a scene
@@ -29,5 +46,8 @@ class GameObject : public Thing {
         void move(float dx, float dy) {
             setPosition(getPosition().x + dx, getPosition().y + dy);
         }
+
+    protected:
+        sf::Texture tex;        // static-image texture
 };
 #endif // SPICE_GAMEOBJECT_HPP
