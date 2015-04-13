@@ -140,7 +140,6 @@ class TypewriterTextBox : public TextBox {
     public:
         TypewriterTextBox(sf::Rect<int> dimensions, float lettersPerSecond) : TextBox(dimensions) {
             speed = lettersPerSecond;
-            std::cout << "Initialized TTB @ " << lettersPerSecond << " (" << speed << ") lps." << std::endl;
             finished = false;
         }
 

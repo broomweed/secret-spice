@@ -63,10 +63,11 @@ class TileMap : public sf::Drawable, public sf::Transformable {
             return tile_ints[vertnum];
         }
 
-    private:
-        sf::Vector2u tile_size;
         unsigned int width;
         unsigned int height;
+        sf::Vector2u tile_size;
+
+    private:
         sf::VertexArray m_vertices;
         sf::Texture m_tileset;
         const int* tile_ints;

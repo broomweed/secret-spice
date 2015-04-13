@@ -210,7 +210,22 @@ int main(int argc, char **argv) {
 
         textbox.update();
         scene.update();
-        camera.setCenter(guy.getPosition());
+        float cameraX, cameraY;
+        if (guy.getPosition().x < SCRWIDTH/4) {
+            cameraX = SCRWIDTH/4;
+        } else if (guy.getPosition().x > tilemap.width * tilemap.tile_size.x - SCRWIDTH/4) {
+            cameraX = tilemap.width * tilemap.tile_size.x - SCRWIDTH/4;
+        } else {
+            cameraX = guy.getPosition().x;
+        }
+        if (guy.getPosition().y < SCRHEIGHT/4) {
+            cameraY = SCRHEIGHT/4;
+        } else if (guy.getPosition().y > tilemap.height * tilemap.tile_size.y - SCRHEIGHT/4) {
+            cameraY = tilemap.height * tilemap.tile_size.y - SCRHEIGHT/4;
+        } else {
+            cameraY = guy.getPosition().y;
+        }
+        camera.setCenter(cameraX, cameraY);
         window.setView(camera);
 
         window.clear(sf::Color::Black);
