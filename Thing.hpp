@@ -72,9 +72,11 @@ class Thing : public sf::Drawable {
             yspeed = 0;
         }
 
-        virtual void turn(float dx, float dy) {
-            // pass
-        }
+        /* things used for characters to change directions but not used
+           for gameobjects */
+        virtual void turn(float dx, float dy) { /* pass */ }
+        virtual int getDirection() { /* pass */ }
+        virtual void setDirection(int dir) { /* pass */ }
 
         virtual void turn(sf::Vector2f dp) {
             turn(dp.x, dp.y);

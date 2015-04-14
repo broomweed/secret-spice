@@ -48,8 +48,6 @@ int main(int argc, char **argv) {
         return -2;
     }
 
-    textbox.setText(string("lorem ipsum dolor sit amet. my name is miles. i should really get some lowercase letters."));
-
     bool arrows[4] = { false, false, false, false };
 
     SpriteSheet dan("images/dan.png", 3, 8);
@@ -62,9 +60,9 @@ int main(int argc, char **argv) {
     }
     tiles.setSmooth(false);
 
-    Character npc1(dan, sf::Vector2f(100, 150), sf::Rect<float>(5, 24, 14, 8), 3);
+    Character npc1(dan, sf::Vector2f(100, 150), sf::Rect<float>(3, 22, 18, 12), 3);
     npc1.setText("my name is dave.");
-    Character npc2(dan, sf::Vector2f(200, 24), sf::Rect<float>(5, 24, 14, 8), 2);
+    Character npc2(dan, sf::Vector2f(200, 24), sf::Rect<float>(3, 22, 18, 12), 2);
     npc2.setText("my name is harold, actually. nice to meet you, daniel!");
 
     scene.add(&guy);
@@ -119,9 +117,15 @@ int main(int argc, char **argv) {
                         break;
                     case sf::Keyboard::X:
                         if (textbox.hidden) {
-                            if (guy.checked != NULL && guy.checked->getText() != "") {
-                                textbox.setText(guy.checked->getText());
-                                textbox.show();
+                            if (guy.checked != NULL) {
+                                if (guy.checked->getText() != "") {
+                                    guy.checked->setDirection((guy.getDirection() + 4) % 8);
+                                    textbox.setText(guy.checked->getText());
+                                    textbox.show();
+                                } else {
+                                    textbox.setText("no problem here.");
+                                    textbox.show();
+                                }
                             }
                         } else {
                             if (textbox.finished) {
@@ -209,6 +213,11 @@ int main(int argc, char **argv) {
                             guy.getPosition().y + vmove))]) {
                 vmove = 0.0;
             }
+        }
+
+        if (!textbox.hidden) {
+            hmove = 0.0;
+            vmove = 0.0;
         }
 
         guy.setSpeed(hmove, vmove);

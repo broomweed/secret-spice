@@ -104,6 +104,15 @@ class Character : public Thing {
             move(0.0f, 0.0f);
         }
 
+        int getDirection() {
+            return direction;
+        }
+
+        void setDirection(int dir) {
+            direction = dir;
+            Thing::setAnimation(anims[animation_id][direction]);
+        }
+
     protected:
         int animation_id;
         int direction;
