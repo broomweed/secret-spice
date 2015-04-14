@@ -63,7 +63,9 @@ int main(int argc, char **argv) {
     tiles.setSmooth(false);
 
     Character npc1(dan, sf::Vector2f(100, 150), sf::Rect<float>(5, 24, 14, 8), 3);
+    npc1.setText("my name is dave.");
     Character npc2(dan, sf::Vector2f(200, 24), sf::Rect<float>(5, 24, 14, 8), 2);
+    npc2.setText("my name is harold, actually. nice to meet you, daniel!");
 
     scene.add(&guy);
     scene.add(&npc1);
@@ -117,7 +119,10 @@ int main(int argc, char **argv) {
                         break;
                     case sf::Keyboard::X:
                         if (textbox.hidden) {
-                            textbox.show();
+                            if (guy.checked != NULL && guy.checked->getText() != "") {
+                                textbox.setText(guy.checked->getText());
+                                textbox.show();
+                            }
                         } else {
                             if (textbox.finished) {
                                 textbox.hide();
@@ -211,6 +216,7 @@ int main(int argc, char **argv) {
         textbox.update();
         scene.update();
         float cameraX, cameraY;
+        // it's all /4 instead of /2 because the camera is zoomed in 2x on a 400x300 section
         if (guy.getPosition().x < SCRWIDTH/4) {
             cameraX = SCRWIDTH/4;
         } else if (guy.getPosition().x > tilemap.width * tilemap.tile_size.x - SCRWIDTH/4) {
@@ -227,6 +233,7 @@ int main(int argc, char **argv) {
         }
         camera.setCenter(cameraX, cameraY);
         window.setView(camera);
+        textbox.setPosition((int)cameraX - textbox.getSizeRect().width/2, (int)cameraY + SCRHEIGHT/4 - 19);
 
         window.clear(sf::Color::Black);
         window.draw(tilemap);

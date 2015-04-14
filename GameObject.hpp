@@ -18,6 +18,7 @@ class GameObject : public Thing {
             boxLoc = boxLoc_;
             setPosition(position_);
             stopMoving();
+            text = "";
         }
 
         GameObject(std::string filename,
@@ -34,6 +35,7 @@ class GameObject : public Thing {
             boxLoc = boxLoc_;
             setPosition(position_);
             stopMoving();
+            text = "";
         }
 
         /* Don't use this method if the object is located within a scene

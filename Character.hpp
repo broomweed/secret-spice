@@ -13,8 +13,8 @@ class Character : public Thing {
             direction = 0;
             animation_id = 0;
             Thing::setAnimation(anims[animation_id][direction]);
-            xspeed = 0;
-            yspeed = 0;
+            stopMoving();
+            text = "";
            /* 5 4 3
                \|/
               6- -2
@@ -34,6 +34,7 @@ class Character : public Thing {
             animation_id = 0;
             Thing::setAnimation(anims[animation_id][direction]);
             stopMoving();
+            text = "";
         }
 
         void move(sf::Vector2f dp) {

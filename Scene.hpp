@@ -50,16 +50,19 @@ class Scene : public sf::Drawable {
             int index = obj.sceneIndex;
             objs[index]->turn(hmove, vmove);
             if (hmove != 0.0f || vmove != 0.0f) {
+                objs[index]->checked = NULL;
                 /* Check if object is touching other objects; if it is, don't move it */
                 for (int i = 0; i < objs.size(); i++) {
                     if (i == index) continue; // obviously it's always touching itself
                     if (objs[i]->hitTest(sf::Rect<float>(objs[index]->absLoc.left + objs[index]->getSpeed().x,
                             objs[index]->absLoc.top, objs[index]->absLoc.width, objs[index]->absLoc.height))) {
                         hmove = 0.0f;
+                        objs[index]->checked = objs[i];
                     }
                     if (objs[i]->hitTest(sf::Rect<float>(objs[index]->absLoc.left, objs[index]->absLoc.top + objs[index]->getSpeed().y,
                             objs[index]->absLoc.width, objs[index]->absLoc.height))) {
                         vmove = 0.0f;
+                        objs[index]->checked = objs[i];
                     }
                 }
                 objs[index]->move(hmove, vmove);

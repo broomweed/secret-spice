@@ -71,7 +71,7 @@ class Thing : public sf::Drawable {
             xspeed = 0;
             yspeed = 0;
         }
-        
+
         virtual void turn(float dx, float dy) {
             // pass
         }
@@ -88,14 +88,27 @@ class Thing : public sf::Drawable {
             move(dp.x, dp.y);
         }
 
+        void setText(std::string text_) {
+            text = text_;
+        }
+
+        std::string getText() {
+            return text;
+        }
+
         sf::Rect<float> boxLoc; // the size and local-coordinates of the bounding
                                 // box in relation to the drawn animation
+
+        Thing *checked;         // this is actually only used by Character, because
+                                // the GameObjects never check each other
+
 
    protected:
         sf::Vector2f position;  // the offset of the corner of the bounding box's location
         Animation anim;         // the animation that it will be drawn with
         float xspeed;
         float yspeed;
+        std::string text;
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
             // draw the animation, which has had its position set correctly (we hope)

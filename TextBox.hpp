@@ -69,6 +69,7 @@ class TextBox : public sf::Drawable {
             }
 
             text = string;
+            dirtyPos = false;
         }
 
         void hide() {
@@ -76,7 +77,34 @@ class TextBox : public sf::Drawable {
         }
 
         void show() {
+            if (dirtyPos) {
+                setText(text);
+            }
             hidden = false;
+        }
+
+        void setPosition(sf::Vector2u pos) {
+            setPosition(pos.x, pos.y);
+        }
+
+        void setPosition(int x, int y) {
+            size.left = x;
+            size.top = y;
+            dirtyPos = true;
+        }
+
+        void setSize(sf::Vector2u size_) {
+            setSize(size_.x, size_.y);
+        }
+
+        void setSize(int w, int h) {
+            size.width = w;
+            size.height = h;
+            dirtyPos = true;
+        }
+
+        sf::Rect<int> getSizeRect() {
+            return size;
         }
 
         std::string getText() {
@@ -109,6 +137,7 @@ class TextBox : public sf::Drawable {
 
     protected:
         std::string text;
+        bool dirtyPos;
         sf::Texture fontImage;
         sf::VertexArray texLocs;
         sf::VertexArray letters;
