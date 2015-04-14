@@ -14,7 +14,7 @@
 using std::string;
 
 int main(int argc, char **argv) {
-    sf::RenderWindow window(sf::VideoMode(SCRWIDTH, SCRHEIGHT), "My favorite window");
+    sf::RenderWindow window(sf::VideoMode(SCRWIDTH, SCRHEIGHT), "Secret Spice");
     // DANG THIS IS THE BEST THING:
     sf::View camera(sf::FloatRect(0, 0, SCRWIDTH/2, SCRHEIGHT/2));
     window.setView(camera);
@@ -37,13 +37,20 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    TypewriterTextBox textbox(sf::Rect<int>(5, 5, 200, 17), 18.0f);
-    int charWidths[41] =
+    TypewriterTextBox textbox(sf::Rect<int>(5, 5, 200, 35), 18.0f);
+    /*int charWidths[41] =
        //a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9 ! ? . , space
-        {5,5,5,5,5,5,5,5,4,4,5,5,6,5,5,5,5,5,5,6,5,6,6,6,6,5,5,4,5,5,5,5,5,5,5,5,2,5,2,2,2};
+        {5,5,5,5,5,5,5,5,4,4,5,5,6,5,5,5,5,5,5,6,5,6,6,6,6,5,5,4,5,5,5,5,5,5,5,5,2,5,2,2,2};*/
+    int charWidths[68] =
+       //A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+        {7,6,6,6,5,5,6,6,2,5,6,5,8,6,6,6,6,6,6,6,6,7,8,6,6,5,
+       //a b c d e f g h i j k l m n o p q r s t u v w x y z
+         5,5,5,5,5,4,5,5,2,3,5,2,8,5,5,5,5,4,5,4,5,6,8,5,5,5,
+       //0 1 2 3 4 5 6 7 8 9 . , ! ? ' space
+         5,3,5,5,6,5,5,5,5,5,2,3,2,5,3,2};
 
-    if (!textbox.setFont(string("images/font.png"), 5, charWidths,
-            string("abcdefghijklmnopqrstuvwxyz0123456789!?., "))) {
+    if (!textbox.setFont(string("images/ebfont.png"), 11, charWidths,
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?' ")) {
         fprintf(stderr, "Something went wrong with the font!\n");
         return -2;
     }
@@ -61,9 +68,9 @@ int main(int argc, char **argv) {
     tiles.setSmooth(false);
 
     Character npc1(dan, sf::Vector2f(100, 150), sf::Rect<float>(3, 22, 18, 12), 3);
-    npc1.setText("my name is dave.");
+    npc1.setText("My name is Robert Alexandrius Dominus III, but you can probably just call me Rob. That's what my friends call me, anyway.");
     Character npc2(dan, sf::Vector2f(200, 24), sf::Rect<float>(3, 22, 18, 12), 2);
-    npc2.setText("my name is harold, actually. nice to meet you, daniel!");
+    npc2.setText("My name is Harold, actually. Nice to meet you, Daniel!");
 
     scene.add(&guy);
     scene.add(&npc1);
@@ -123,7 +130,7 @@ int main(int argc, char **argv) {
                                     textbox.setText(guy.checked->getText());
                                     textbox.show();
                                 } else {
-                                    textbox.setText("no problem here.");
+                                    textbox.setText("No problem here.");
                                     textbox.show();
                                 }
                             }
@@ -242,7 +249,7 @@ int main(int argc, char **argv) {
         }
         camera.setCenter(cameraX, cameraY);
         window.setView(camera);
-        textbox.setPosition((int)cameraX - textbox.getSizeRect().width/2, (int)cameraY + SCRHEIGHT/4 - 19);
+        textbox.setPosition((int)cameraX - textbox.getSizeRect().width/2, (int)cameraY + SCRHEIGHT/4 - 39);
 
         window.clear(sf::Color::Black);
         window.draw(tilemap);
