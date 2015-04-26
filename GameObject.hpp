@@ -11,20 +11,20 @@ class GameObject : public Thing {
         GameObject(Animation anim_,
                 sf::Vector2f position_,
                 sf::Rect<float> boxLoc_,
-                unsigned int drawDepth_) {
+                unsigned int drawDepth_)
+                    : Thing() {
             drawDepth = drawDepth_;
             anim = anim_;
             position = position_;
             boxLoc = boxLoc_;
             setPosition(position_);
-            stopMoving();
-            text = "";
         }
 
         GameObject(std::string filename,
                 sf::Vector2f position_,
                 sf::Rect<float> boxLoc_,
-                unsigned int drawDepth_) {
+                unsigned int drawDepth_)
+                    : Thing() {
             if(!tex.loadFromFile(filename)) {
                 std::cerr << "Error loading filename " << filename << std::endl;
             }
@@ -34,8 +34,6 @@ class GameObject : public Thing {
             position = position_;
             boxLoc = boxLoc_;
             setPosition(position_);
-            stopMoving();
-            text = "";
         }
 
         /* Don't use this method if the object is located within a scene

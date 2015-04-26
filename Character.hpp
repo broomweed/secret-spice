@@ -5,7 +5,8 @@ class Character : public Thing {
         Character(std::vector<std::vector<Animation> > anims_,
                 sf::Vector2f position_,
                 sf::Rect<float> boxLoc_,
-                unsigned int drawDepth_) {
+                unsigned int drawDepth_)
+                    : Thing() {
             boxLoc = boxLoc_;
             drawDepth = drawDepth_;
             setPosition(position_);
@@ -13,8 +14,6 @@ class Character : public Thing {
             direction = 0;
             animation_id = 0;
             Thing::setAnimation(anims[animation_id][direction]);
-            stopMoving();
-            text = "";
            /* 5 4 3
                \|/
               6- -2
@@ -25,7 +24,8 @@ class Character : public Thing {
         Character(SpriteSheet& ss,
                 sf::Vector2f position_,
                 sf::Rect<float> boxLoc_,
-                unsigned int drawDepth_) {
+                unsigned int drawDepth_)
+                    : Thing() {
             boxLoc = boxLoc_;
             drawDepth = drawDepth_;
             setPosition(position_);
@@ -33,8 +33,6 @@ class Character : public Thing {
             direction = 0;
             animation_id = 0;
             Thing::setAnimation(anims[animation_id][direction]);
-            stopMoving();
-            text = "";
         }
 
         void move(sf::Vector2f dp) {

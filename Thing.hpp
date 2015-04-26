@@ -7,6 +7,12 @@
    the other. Hence this class. */
 class Thing : public sf::Drawable {
     public:
+        Thing() {
+            text = "";
+            is_copy = false;
+            stopMoving();
+        }
+
         bool hitTest(sf::Vector2f point) const {
             return absLoc.contains(point);
         }
@@ -33,6 +39,14 @@ class Thing : public sf::Drawable {
             return position;
         }
 
+        float getX() const {
+            return position.x;
+        }
+
+        float getY() const {
+            return position.y;
+        }
+
         sf::Sprite getSprite() const {
             return anim.getCurrentSprite();
         }
@@ -45,7 +59,7 @@ class Thing : public sf::Drawable {
             return anim;
         }
 
-        void update() {
+        virtual void update() {
             anim.update();
         }
 
@@ -72,11 +86,11 @@ class Thing : public sf::Drawable {
             yspeed = 0;
         }
 
-        /* things used for characters to change directions but not used
-           for gameobjects */
+        /* things used for some subclasses but not others */
         virtual void turn(float dx, float dy) { /* pass */ }
         virtual int getDirection() { /* pass */ }
         virtual void setDirection(int dir) { /* pass */ }
+        virtual void onTouch() { /* pass */ }
 
         virtual void turn(sf::Vector2f dp) {
             turn(dp.x, dp.y);
@@ -104,6 +118,9 @@ class Thing : public sf::Drawable {
         Thing *checked;         // this is actually only used by Character, because
                                 // the GameObjects never check each other
 
+        class Scene *parent;    // the scene it lives in
+
+        bool is_copy;           // does the Scene need to take care of its cleanup?
 
    protected:
         sf::Vector2f position;  // the offset of the corner of the bounding box's location

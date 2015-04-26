@@ -2,11 +2,11 @@
 #include <cstdio>
 #include <SFML/Graphics.hpp>
 #include "Thing.hpp"
-#include "TextBox.hpp"
-#include "TileMap.hpp"
 #include "GameObject.hpp"
 #include "Character.hpp"
 #include "Scene.hpp"
+#include "Door.hpp"
+#include "TextBox.hpp"
 #include "SpriteSheet.hpp"
 #define SCRWIDTH 800
 #define SCRHEIGHT 600
@@ -19,9 +19,12 @@ int main(int argc, char **argv) {
     sf::View camera(sf::FloatRect(0, 0, SCRWIDTH/2, SCRHEIGHT/2));
     window.setView(camera);
     sf::Texture tiles;
-    Scene scene;
 
     const int level[] = {
+        0,0,1,2,0,0,0,0,3,4,5,6,7,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,1,2,0,8,9,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,14,15,16,17,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,8,9,10,11,12
+    };
+
+    const int level2[] = {
         0,0,1,2,0,0,0,0,3,4,5,6,7,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,1,2,0,8,9,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,14,15,16,17,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,8,9,10,11,12
     };
 
@@ -37,10 +40,18 @@ int main(int argc, char **argv) {
         return -1;
     }
 
+    TileMap tilemap2;
+    if (!tilemap2.load("images/tests/trees2/tiles.png", sf::Vector2u(16, 16), level2, 26, 20)) {
+        fprintf(stderr, "something went wrong with the second tileset!\n");
+        return -1;
+    }
+
+    Scene scene(tilemap);
+    Scene scene2(tilemap2);
+
+    scene.set_active();
+
     TypewriterTextBox textbox(sf::Rect<int>(5, 5, 200, 35), 18.0f);
-    /*int charWidths[41] =
-       //a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9 ! ? . , space
-        {5,5,5,5,5,5,5,5,4,4,5,5,6,5,5,5,5,5,5,6,5,6,6,6,6,5,5,4,5,5,5,5,5,5,5,5,2,5,2,2,2};*/
     int charWidths[68] =
        //A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
         {7,6,6,6,5,5,6,6,2,5,6,5,8,6,6,6,6,6,6,6,6,7,8,6,6,5,
@@ -75,6 +86,8 @@ int main(int argc, char **argv) {
     scene.add(&guy);
     scene.add(&npc1);
     scene.add(&npc2);
+    scene.set_mc(&guy);
+    scene.setName("Scene 1");
 
     GameObject tree("images/tests/tree.png", sf::Vector2f(0, 0), sf::Rect<float>(12, 66, 39, 12), 4);
 
@@ -83,6 +96,12 @@ int main(int argc, char **argv) {
     scene.add_static(&tree, sf::Vector2f(198, 170));
     scene.add_static(&tree, sf::Vector2f(38, 218));
     scene.add_static(&tree, sf::Vector2f(358, 298));
+
+    scene2.add_static(&tree, sf::Vector2f(198, 170));
+    scene2.setName("The barren desert");
+
+    Door door(&scene2, sf::Rect<float>(198, 182, 20, 20), sf::Vector2f(16, 16));
+    scene.add(&door);
 
     window.setVerticalSyncEnabled(true);
 
@@ -231,6 +250,7 @@ int main(int argc, char **argv) {
 
         textbox.update();
         scene.update();
+        scene2.update();
         float cameraX, cameraY;
         // it's all /4 instead of /2 because the camera is zoomed in 2x on a 400x300 section
         if (guy.getPosition().x < SCRWIDTH/4) {
@@ -252,8 +272,8 @@ int main(int argc, char **argv) {
         textbox.setPosition((int)cameraX - textbox.getSizeRect().width/2, (int)cameraY + SCRHEIGHT/4 - 39);
 
         window.clear(sf::Color::Black);
-        window.draw(tilemap);
         window.draw(scene);
+        window.draw(scene2);
         window.draw(textbox);
         window.display();
 
