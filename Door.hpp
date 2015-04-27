@@ -9,7 +9,8 @@ class Door : public Thing {
     public:
         Door (Scene *destination_,
                 sf::Rect<float> location,
-                sf::Vector2f destCoords_) {
+                sf::Vector2f destCoords_)
+                    : Thing() {
             destination = destination_;
             boxLoc = location;
             absLoc = boxLoc;

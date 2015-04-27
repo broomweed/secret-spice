@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
     Scene scene(tilemap);
     Scene scene2(tilemap2);
 
-    scene.set_active();
+    scene.setActive();
 
     TypewriterTextBox textbox(sf::Rect<int>(5, 5, 200, 35), 18.0f);
     int charWidths[68] =
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
     scene.add(&guy);
     scene.add(&npc1);
     scene.add(&npc2);
-    scene.set_mc(&guy);
+    scene.setMC(&guy);
     scene.setName("Scene 1");
 
     GameObject tree("images/tests/tree.png", sf::Vector2f(0, 0), sf::Rect<float>(12, 66, 39, 12), 4);
@@ -98,10 +98,12 @@ int main(int argc, char **argv) {
     scene.add_static(&tree, sf::Vector2f(358, 298));
 
     scene2.add_static(&tree, sf::Vector2f(198, 170));
-    scene2.setName("The barren desert");
+    scene2.setName("the barren desert");
 
     Door door(&scene2, sf::Rect<float>(198, 182, 20, 20), sf::Vector2f(16, 16));
     scene.add(&door);
+    Door door2(&scene, sf::Rect<float>(0, 0, 32, 32), sf::Vector2f(208, 192));
+    scene2.add(&door2);
 
     window.setVerticalSyncEnabled(true);
 

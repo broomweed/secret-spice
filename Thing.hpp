@@ -10,6 +10,7 @@ class Thing : public sf::Drawable {
         Thing() {
             text = "";
             is_copy = false;
+            active = true;
             stopMoving();
         }
 
@@ -121,6 +122,9 @@ class Thing : public sf::Drawable {
         class Scene *parent;    // the scene it lives in
 
         bool is_copy;           // does the Scene need to take care of its cleanup?
+
+        bool active;            // will it be checked for hittesting? (set to false
+                                // if touching it when entering a map)
 
    protected:
         sf::Vector2f position;  // the offset of the corner of the bounding box's location

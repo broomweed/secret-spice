@@ -71,26 +71,35 @@ class Scene : public sf::Drawable {
 
         void remove(Thing *obj) {
             objs.erase(objs.begin()+obj->sceneIndex);
+            // rejigger scene indices
+            for (int i = 0; i < objs.size(); i++) {
+                objs[i]->sceneIndex = i;
+            }
         }
 
         std::vector<Thing*> getObjs() {
             return objs;
         }
 
-        void set_mc(Thing *new_mc) {
-            main_character = objs[new_mc->sceneIndex];
+        void setMC(Thing *new_mc) {
+            mainCharacter = objs[new_mc->sceneIndex];
         }
 
-        Thing *get_mc() {
-            return main_character;
+        Thing *getMC() {
+            return mainCharacter;
         }
 
         void update() {
             if (visible) {
-                last_loop = loop_time.getElapsedTime();
-                loop_time.restart();
+                lastLoop = loopTime.getElapsedTime();
+                loopTime.restart();
                 for (int i = 0; i < objs.size(); i++) {
-                    move_sprite((*objs[i]), objs[i]->getSpeed().x * last_loop.asSeconds() * 30, objs[i]->getSpeed().y * last_loop.asSeconds() * 30);
+                    // Re-enable things you aren't touching
+                    if (!objs[i]->active && !getMC()->hitTest(*objs[i])) {
+                        std::cout << "obj #" << i << " re-enabled." << std::endl;
+                        objs[i]->active = true;
+                    }
+                    move_sprite((*objs[i]), objs[i]->getSpeed().x * lastLoop.asSeconds() * 30, objs[i]->getSpeed().y * lastLoop.asSeconds() * 30);
                     objs[i]->update();
                 }
             }
@@ -106,15 +115,21 @@ class Scene : public sf::Drawable {
                     if (i == index) continue; // obviously it's always touching itself
                     if (objs[i]->hitTest(sf::Rect<float>(objs[index]->absLoc.left + objs[index]->getSpeed().x,
                             objs[index]->absLoc.top, objs[index]->absLoc.width, objs[index]->absLoc.height))) {
-                        hmove = 0.0f;
-                        objs[index]->checked = objs[i];
-                        objs[i]->onTouch();
+                        if (objs[i]->active) {
+                            std::cout << "obj #" << i << " hit." << std::endl;
+                            hmove = 0.0f;
+                            objs[index]->checked = objs[i];
+                            objs[i]->onTouch();
+                        }
                     }
                     if (objs[i]->hitTest(sf::Rect<float>(objs[index]->absLoc.left, objs[index]->absLoc.top + objs[index]->getSpeed().y,
                             objs[index]->absLoc.width, objs[index]->absLoc.height))) {
-                        vmove = 0.0f;
-                        objs[index]->checked = objs[i];
-                        objs[i]->onTouch();
+                        if (objs[i]->active) {
+                            std::cout << "obj #" << i << " hit." << std::endl;
+                            vmove = 0.0f;
+                            objs[index]->checked = objs[i];
+                            objs[i]->onTouch();
+                        }
                     }
                 }
                 objs[index]->move(hmove, vmove);
@@ -134,20 +149,37 @@ class Scene : public sf::Drawable {
             }
         }
 
-        void set_active() {
+        void setActive() {
             visible = true;
-            loop_time.restart();
+            loopTime.restart();
         }
 
         void transfer(Scene *scene, sf::Vector2f destCoords) {
             std::cout << "Transferring from " << name << " to " << scene->name << "." << std::endl;
-            Thing *mc = get_mc();
+            Thing *mc = getMC();
             visible = false;
             remove(mc);
             mc->setPosition(destCoords.x, destCoords.y);
-            scene->set_active();
+            scene->setActive();
             scene->add(mc);
-            scene->set_mc(mc);
+            scene->setMC(mc);
+            for (int i = 0; i < scene->getNumObjs(); i++) {
+                // disable door if you're standing on top of another one
+                // immediately upon entering a scene
+                if (mc->hitTest(*scene->getObj(i))) {
+                    if (i == mc->sceneIndex) continue;
+                    std::cout << "obj #" << i << " disabled." << std::endl;
+                    scene->getObj(i)->active = false;
+                }
+            }
+        }
+
+        int getNumObjs() {
+            return objs.size();
+        }
+
+        Thing *getObj(int index) {
+            return objs[index];
         }
 
         // for easy calling of methods on it, this is a public member
@@ -164,9 +196,9 @@ class Scene : public sf::Drawable {
 
     protected:
         std::vector<Thing*> objs;
-        sf::Clock loop_time;
-        sf::Time last_loop;
-        Thing *main_character;
+        sf::Clock loopTime;
+        sf::Time lastLoop;
+        Thing *mainCharacter;
         bool visible;
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
