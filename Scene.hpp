@@ -4,7 +4,6 @@
 #include <SFML/Graphics.hpp>
 #include "Thing.hpp"
 #include "TileMap.hpp"
-#include <cstdio>
 
 #ifndef SCRWIDTH
 #define SCRWIDTH 800
