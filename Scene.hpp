@@ -47,6 +47,7 @@ class Scene : public sf::Drawable {
             objs.push_back(obj);
             obj->parent = this;
             obj->sceneIndex = objs.size()-1;
+            obj->drawDepth = num;
             for (int i = 0; i < objs.size(); i++) {
                 // Swap objects if they passed behind/in front of each other
                 if ((obj->getPosition().y < objs[i]->getPosition().y
@@ -58,14 +59,16 @@ class Scene : public sf::Drawable {
                     objs[i]->drawDepth = tmp;
                 }
             }
+            num++;
         }
 
         /* This adds a copy of a GameObject to the scene.
            Useful for things that appear a lot over and over
            and are exactly the same except for position. */
         void add_static(GameObject *obj, sf::Vector2f position) {
-            add(new GameObject(obj->getAnimation(), position, obj->boxLoc, 5+num));
+            add(new GameObject(obj->getAnimation(), position, obj->boxLoc));
             objs[objs.size()-1]->is_copy = true;
+            objs[objs.size()-1]->drawDepth = num;
             num++;
         }
 
@@ -116,7 +119,6 @@ class Scene : public sf::Drawable {
                     if (objs[i]->hitTest(sf::Rect<float>(objs[index]->absLoc.left + objs[index]->getSpeed().x,
                             objs[index]->absLoc.top, objs[index]->absLoc.width, objs[index]->absLoc.height))) {
                         if (objs[i]->active) {
-                            std::cout << "obj #" << i << " hit." << std::endl;
                             hmove = 0.0f;
                             objs[index]->checked = objs[i];
                             objs[i]->onTouch();
@@ -125,7 +127,6 @@ class Scene : public sf::Drawable {
                     if (objs[i]->hitTest(sf::Rect<float>(objs[index]->absLoc.left, objs[index]->absLoc.top + objs[index]->getSpeed().y,
                             objs[index]->absLoc.width, objs[index]->absLoc.height))) {
                         if (objs[i]->active) {
-                            std::cout << "obj #" << i << " hit." << std::endl;
                             vmove = 0.0f;
                             objs[index]->checked = objs[i];
                             objs[i]->onTouch();

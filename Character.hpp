@@ -4,11 +4,10 @@ class Character : public Thing {
     public:
         Character(std::vector<std::vector<Animation> > anims_,
                 sf::Vector2f position_,
-                sf::Rect<float> boxLoc_,
-                unsigned int drawDepth_)
+                sf::Rect<float> boxLoc_)
                     : Thing() {
+            drawDepth = 0;
             boxLoc = boxLoc_;
-            drawDepth = drawDepth_;
             setPosition(position_);
             anims = anims_;
             direction = 0;
@@ -23,11 +22,10 @@ class Character : public Thing {
 
         Character(SpriteSheet& ss,
                 sf::Vector2f position_,
-                sf::Rect<float> boxLoc_,
-                unsigned int drawDepth_)
+                sf::Rect<float> boxLoc_)
                     : Thing() {
+            drawDepth = 0;
             boxLoc = boxLoc_;
-            drawDepth = drawDepth_;
             setPosition(position_);
             setAnimationsFromSpriteSheet(ss);
             direction = 0;

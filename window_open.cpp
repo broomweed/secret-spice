@@ -71,25 +71,25 @@ int main(int argc, char **argv) {
     SpriteSheet dan("images/dan.png", 3, 8);
     dan.getSprite(1,1);
 
-    Character guy(dan, sf::Vector2f(0, 16), sf::Rect<float>(5, 24, 14, 8), 1);
+    Character guy(dan, sf::Vector2f(0, 16), sf::Rect<float>(5, 24, 14, 8));
 
     if (!tiles.loadFromFile("images/tilemap.png")) {
         fprintf(stderr, "something went wrong (2)!\n");
     }
     tiles.setSmooth(false);
 
-    Character npc1(dan, sf::Vector2f(100, 150), sf::Rect<float>(3, 22, 18, 12), 3);
+    Character npc1(dan, sf::Vector2f(100, 150), sf::Rect<float>(3, 22, 18, 12));
     npc1.setText("My name is Robert Alexandrius Dominus III, but you can probably just call me Rob. That's what my friends call me, anyway.");
-    Character npc2(dan, sf::Vector2f(200, 24), sf::Rect<float>(3, 22, 18, 12), 2);
+    Character npc2(dan, sf::Vector2f(200, 24), sf::Rect<float>(3, 22, 18, 12));
     npc2.setText("My name is Harold, actually. Nice to meet you, Daniel!");
 
     scene.add(&guy);
     scene.add(&npc1);
     scene.add(&npc2);
     scene.setMC(&guy);
-    scene.setName("Scene 1");
+    scene.setName("the verdant forest");
 
-    GameObject tree("images/tests/tree.png", sf::Vector2f(0, 0), sf::Rect<float>(12, 66, 39, 12), 4);
+    GameObject tree("images/tests/tree.png", sf::Vector2f(0, 0), sf::Rect<float>(12, 66, 39, 12));
 
     scene.add_static(&tree, sf::Vector2f(150, 10));
     scene.add_static(&tree, sf::Vector2f(38, 90));
