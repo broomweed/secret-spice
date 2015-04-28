@@ -12,6 +12,7 @@ class Thing : public sf::Drawable {
             is_copy = false;
             active = true;
             stopMoving();
+            targetDir = 0;
         }
 
         bool hitTest(sf::Vector2f point) const {
@@ -97,6 +98,34 @@ class Thing : public sf::Drawable {
             turn(dp.x, dp.y);
         }
 
+        void face(int dir) {
+           /* 5 4 3
+               \|/
+              6- -2
+               /|\
+              7 0 1 */
+            switch (dir) {
+                case 0:
+                    turn(0, 1); break;
+                case 1:
+                    turn(1, 1); break;
+                case 2:
+                    turn(1, 0); break;
+                case 3:
+                    turn(1, -1); break;
+                case 4:
+                    turn(0, -1); break;
+                case 5:
+                    turn(-1, -1); break;
+                case 6:
+                    turn(-1, 0); break;
+                case 7:
+                    turn(-1, 1); break;
+                default:
+                    std::cerr << "unknown direction " << dir << std::endl;
+            }
+        }
+
         virtual void move(float dx, float dy) {
             setPosition(getPosition().x + dx, getPosition().y + dy);
         }
@@ -125,6 +154,8 @@ class Thing : public sf::Drawable {
 
         bool active;            // will it be checked for hittesting? (set to false
                                 // if touching it when entering a map)
+
+        int targetDir;
 
    protected:
         sf::Vector2f position;  // the offset of the corner of the bounding box's location

@@ -9,7 +9,8 @@ class Door : public Thing {
     public:
         Door (Scene *destination_,
                 sf::Rect<float> location,
-                sf::Vector2f destCoords_)
+                sf::Vector2f destCoords_,
+                int targetDir_)
                     : Thing() {
             destination = destination_;
             boxLoc = location;
@@ -18,6 +19,7 @@ class Door : public Thing {
             yspeed = 0;
             drawDepth = 0;
             destCoords = destCoords_;
+            targetDir = targetDir_;
             anim = Animation();
             anim.addFrame(sf::Sprite(), 1000);
         }
@@ -31,7 +33,7 @@ class Door : public Thing {
         }
 
         void onTouch() {
-            parent->transfer(destination, destCoords);
+            parent->transfer(destination, destCoords, targetDir);
         }
 
     protected:

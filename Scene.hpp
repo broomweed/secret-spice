@@ -143,7 +143,9 @@ class Scene : public sf::Drawable {
                 Thing *mc = getMC();
                 visible = false;
                 remove(mc);
+                mc->face(targetDir);
                 mc->setPosition(destCoords.x, destCoords.y);
+                mc->stopMoving();
                 transferring->setActive();
                 transferring->add(mc);
                 transferring->setMC(mc);
@@ -209,11 +211,12 @@ class Scene : public sf::Drawable {
             loopTime.restart();
         }
 
-        void transfer(Scene *scene, sf::Vector2f destCoords_) {
+        void transfer(Scene *scene, sf::Vector2f destCoords_, int targetDir_) {
             std::cout << "Beginning to transfer to " << scene->name << "." << std::endl;
             visible = false;
             transferring = scene;
             destCoords = destCoords_;
+            targetDir = targetDir_;
         }
 
         int getNumObjs() {
@@ -242,6 +245,7 @@ class Scene : public sf::Drawable {
         sf::Clock loopTime;
         sf::Time lastLoop;
         Scene *transferring;
+        int targetDir;
         sf::Vector2f destCoords;
         Thing *mainCharacter;
         bool visible;

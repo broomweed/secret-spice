@@ -97,6 +97,7 @@ class Character : public Thing {
         void stopMoving() {
             xspeed = 0;
             yspeed = 0;
+            turn(0.0f, 0.0f);
             move(0.0f, 0.0f);
         }
 

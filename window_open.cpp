@@ -100,9 +100,9 @@ int main(int argc, char **argv) {
     scene2.add_static(&tree, sf::Vector2f(198, 170));
     scene2.setName("the barren desert");
 
-    Door door(&scene2, sf::Rect<float>(198, 182, 20, 20), sf::Vector2f(16, 16));
+    Door door(&scene2, sf::Rect<float>(198, 182, 20, 20), sf::Vector2f(16, 16), 0);
     scene.add(&door);
-    Door door2(&scene, sf::Rect<float>(0, 0, 32, 32), sf::Vector2f(208, 192));
+    Door door2(&scene, sf::Rect<float>(0, 0, 32, 32), sf::Vector2f(208, 192), 0);
     scene2.add(&door2);
 
     window.setVerticalSyncEnabled(true);
