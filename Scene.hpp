@@ -4,6 +4,12 @@
 #include <SFML/Graphics.hpp>
 #include "Thing.hpp"
 #include "TileMap.hpp"
+#include <cstdio>
+
+#ifndef SCRWIDTH
+#define SCRWIDTH 800
+#define SCRHEIGHT 600
+#endif//SCRWIDTH
 
 /* This is a scene that contains a series of Things. This is what handles
  * drawing in order of drawDepth. */
@@ -13,28 +19,38 @@ class Scene : public sf::Drawable {
             for (int i = 0; i < size; i++) {
                 add(&objs_[i]);
             }
-            num = 0;
-            visible = false;
+            init();
         }
 
         Scene(Thing* objs_, int size, TileMap tilemap_) {
             for (int i = 0; i < size; i++) {
                 add(&objs_[i]);
             }
-            num = 0;
             tilemap = tilemap_;
-            visible = false;
+            init();
         }
 
         Scene(TileMap tilemap_) {
-            num = 0;
             tilemap = tilemap_;
-            visible = false;
+            init();
         }
 
         Scene() {
+            init();
+        }
+
+        void init() {
             num = 0;
             visible = false;
+            transferring = NULL;
+            initFadeRect();
+        }
+
+        void initFadeRect() {
+            fadeRect = sf::RectangleShape(sf::Vector2f(SCRWIDTH/2, SCRHEIGHT/2));
+            fadeRect.setPosition(sf::Vector2f(0,0));
+            fadeRect.setSize(sf::Vector2f(tilemap.width * tilemap.tile_size.x, tilemap.height * tilemap.tile_size.y));
+            fadeRect.setFillColor(sf::Color(0,0,0,0)); // black
         }
 
         void setName(std::string name_) {
@@ -96,15 +112,53 @@ class Scene : public sf::Drawable {
             if (visible) {
                 lastLoop = loopTime.getElapsedTime();
                 loopTime.restart();
-                for (int i = 0; i < objs.size(); i++) {
-                    // Re-enable things you aren't touching
-                    if (!objs[i]->active && !getMC()->hitTest(*objs[i])) {
-                        std::cout << "obj #" << i << " re-enabled." << std::endl;
-                        objs[i]->active = true;
+                if (fadeRect.getFillColor().a > 0) {
+                    // Fade in
+                    fadeRect.setFillColor(sf::Color(fadeRect.getFillColor().r, fadeRect.getFillColor().g, fadeRect.getFillColor().b,
+                            std::max(0.0f, fadeRect.getFillColor().a - lastLoop.asSeconds() * 255))); // take 1 second to fade in
+                } else {
+                    // Interphase
+                    for (int i = 0; i < objs.size(); i++) {
+                        if (!objs[i]->active && !getMC()->hitTest(*objs[i])) {
+                            // Re-enable things you aren't touching
+                            std::cout << "obj #" << i << " re-enabled." << std::endl;
+                            objs[i]->active = true;
+                        }
+                        // Move the sprites around
+                        move_sprite((*objs[i]), objs[i]->getSpeed().x * lastLoop.asSeconds() * 30, objs[i]->getSpeed().y * lastLoop.asSeconds() * 30);
+                        objs[i]->update();
                     }
-                    move_sprite((*objs[i]), objs[i]->getSpeed().x * lastLoop.asSeconds() * 30, objs[i]->getSpeed().y * lastLoop.asSeconds() * 30);
-                    objs[i]->update();
                 }
+            }
+            if (transferring) {
+                // Fade out
+                lastLoop = loopTime.getElapsedTime();
+                loopTime.restart();
+                fadeRect.setFillColor(sf::Color(fadeRect.getFillColor().r, fadeRect.getFillColor().g, fadeRect.getFillColor().b,
+                        std::min(255.0f, fadeRect.getFillColor().a + lastLoop.asSeconds() * 255))); // take 1 second to fade out
+            }
+            if (transferring && fadeRect.getFillColor().a >= 255) {
+                // Hand off to the next scene
+                std::cout << "Transferring from " << name << " to " << transferring->name << "." << std::endl;
+                Thing *mc = getMC();
+                visible = false;
+                remove(mc);
+                mc->setPosition(destCoords.x, destCoords.y);
+                transferring->setActive();
+                transferring->add(mc);
+                transferring->setMC(mc);
+                for (int i = 0; i < transferring->getNumObjs(); i++) {
+                    // disable object if you're standing on top of it
+                    // immediately upon entering a scene
+                    if (mc->hitTest(*transferring->getObj(i))) {
+                        if (i == mc->sceneIndex) continue; // except itself
+                        std::cout << "obj #" << i << " disabled." << std::endl;
+                        transferring->getObj(i)->active = false;
+                    }
+                }
+                transferring->fadeRect.setFillColor(sf::Color(
+                            fadeRect.getFillColor().r, fadeRect.getFillColor().g, fadeRect.getFillColor().b, 255));
+                transferring = NULL;
             }
         }
 
@@ -155,24 +209,11 @@ class Scene : public sf::Drawable {
             loopTime.restart();
         }
 
-        void transfer(Scene *scene, sf::Vector2f destCoords) {
-            std::cout << "Transferring from " << name << " to " << scene->name << "." << std::endl;
-            Thing *mc = getMC();
+        void transfer(Scene *scene, sf::Vector2f destCoords_) {
+            std::cout << "Beginning to transfer to " << scene->name << "." << std::endl;
             visible = false;
-            remove(mc);
-            mc->setPosition(destCoords.x, destCoords.y);
-            scene->setActive();
-            scene->add(mc);
-            scene->setMC(mc);
-            for (int i = 0; i < scene->getNumObjs(); i++) {
-                // disable door if you're standing on top of another one
-                // immediately upon entering a scene
-                if (mc->hitTest(*scene->getObj(i))) {
-                    if (i == mc->sceneIndex) continue;
-                    std::cout << "obj #" << i << " disabled." << std::endl;
-                    scene->getObj(i)->active = false;
-                }
-            }
+            transferring = scene;
+            destCoords = destCoords_;
         }
 
         int getNumObjs() {
@@ -186,6 +227,7 @@ class Scene : public sf::Drawable {
         // for easy calling of methods on it, this is a public member
         TileMap tilemap;
         std::string name;
+        sf::RectangleShape fadeRect;
 
         ~Scene() {
             for (int i = 0; i < objs.size(); i++) {
@@ -199,11 +241,13 @@ class Scene : public sf::Drawable {
         std::vector<Thing*> objs;
         sf::Clock loopTime;
         sf::Time lastLoop;
+        Scene *transferring;
+        sf::Vector2f destCoords;
         Thing *mainCharacter;
         bool visible;
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
-            if (visible) {
+            if (visible || transferring) {
                 // draw the tilemap in the background
                 target.draw(tilemap);
                 /* there is DEFINITELY a more efficient way to do this */
@@ -231,6 +275,7 @@ class Scene : public sf::Drawable {
                         }
                     }
                 }
+                target.draw(fadeRect, states);
             }
         }
 };
