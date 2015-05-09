@@ -1,5 +1,6 @@
 #ifndef SPICE_THING_HPP
 #define SPICE_THING_HPP
+#include "Dialogue.hpp"
 #include "Animation.hpp"
 /* This is the last common ancestor of GameObject and Character.
    Actually most things from GameObject go in here. However, they
@@ -8,7 +9,7 @@
 class Thing : public sf::Drawable {
     public:
         Thing() {
-            text = "";
+            text = Dialogue();
             is_copy = false;
             active = true;
             stopMoving();
@@ -134,11 +135,11 @@ class Thing : public sf::Drawable {
             move(dp.x, dp.y);
         }
 
-        void setText(std::string text_) {
+        void setText(Dialogue text_) {
             text = text_;
         }
 
-        std::string getText() {
+        Dialogue getText() {
             return text;
         }
 
@@ -162,7 +163,7 @@ class Thing : public sf::Drawable {
         Animation anim;         // the animation that it will be drawn with
         float xspeed;
         float yspeed;
-        std::string text;
+        Dialogue text;
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
             // draw the animation, which has had its position set correctly (we hope)

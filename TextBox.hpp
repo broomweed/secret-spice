@@ -136,15 +136,15 @@ class TextBox : public sf::Drawable {
         }
 
     protected:
-        std::string text;
-        bool dirtyPos;
-        sf::Texture fontImage;
-        sf::VertexArray texLocs;
-        sf::VertexArray letters;
-        sf::Rect<int> size;
-        int* widths;
-        int charHeight;
-        std::string decoder;
+        std::string text;           // text to display
+        bool dirtyPos;              // has position/size been changed since it was last shown
+        sf::Texture fontImage;      // the letters of the font
+        sf::VertexArray texLocs;    // locations of font letter rectangles
+        sf::VertexArray letters;    // positions of letters on screen
+        sf::Rect<int> size;         // size/location of the text box
+        int* widths;                // the widths of each individual character
+        int charHeight;             // the height of every character
+        std::string decoder;        // the order of the characters within the texture
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
             if (!hidden) {
@@ -169,34 +169,35 @@ class TypewriterTextBox : public TextBox {
     public:
         TypewriterTextBox(sf::Rect<int> dimensions, float lettersPerSecond) : TextBox(dimensions) {
             speed = lettersPerSecond;
-            finished = false;
+            lineFinished = false;
         }
 
         void setText(std::string string) {
             TextBox::setText(string);
             lineTime.restart();
+            lineFinished = false;
         }
 
         void show() {
             TextBox::show();
             lineTime.restart();
-            finished = false;
+            lineFinished = false;
         }
 
-        bool finished;
+        bool lineFinished;
 
         void update() {
-            if (!hidden && !finished) {
+            if (!hidden && !lineFinished) {
                 // seconds * letters/sec = # letters (unit cancellation!)
                 int dispLineLength = (int)(lineTime.getElapsedTime().asSeconds() * speed);
                 if (dispLineLength <= text.length()) {
                     // (we have to multiply by 4 because there are 4 vertices per letter)
                     dispLetters.resize(dispLineLength * 4);
-                    finished = false;
+                    lineFinished = false;
                 } else {
                     // this means we've already written out all the letters
                     dispLetters.resize(text.length() * 4);
-                    finished = true;
+                    lineFinished = true;
                 }
                 dispLetters.setPrimitiveType(sf::Quads);
                 // copy the ones that need to be displayed into the vertex array
@@ -222,6 +223,83 @@ class TypewriterTextBox : public TextBox {
                 // apply the texture
                 states.texture = &fontImage;
                 target.draw(dispLetters, states);
+            }
+        }
+};
+
+/* This is an extension of the TypewriterTextBox that has a Dialogue object attached,
+   and thus supports sequences of multiple lines. */
+class DialogueTextBox : public TypewriterTextBox {
+    public:
+        DialogueTextBox (sf::Rect<int> dimensions,
+                float lettersPerSecond,
+                Dialogue lines_,
+                sf::Sprite continueArrow_)
+                : TypewriterTextBox(dimensions, lettersPerSecond) {
+            lines = lines_;
+            continueArrow = continueArrow_;
+        }
+
+        DialogueTextBox (sf::Rect<int> dimensions,
+                float lettersPerSecond,
+                sf::Sprite continueArrow_)
+                : TypewriterTextBox(dimensions, lettersPerSecond) {
+            lines = Dialogue();
+            continueArrow = continueArrow_;
+        }
+
+        DialogueTextBox (sf::Rect<int> dimensions,
+                float lettersPerSecond,
+                std::string contArrowFilename)
+                : TypewriterTextBox(dimensions, lettersPerSecond) {
+            lines = Dialogue();
+            if (!contTexture.loadFromFile(contArrowFilename)) {
+                std::cerr << "Failed to load continue arrow for text box at " << contArrowFilename << "!" << std::endl;
+            }
+            continueArrow = sf::Sprite(contTexture);
+        }
+
+        void nextLine() {
+            if (lines.hasMoreLines()) {
+                setText(lines.getNextLine());
+            } else {
+                hide();
+            }
+        }
+
+        void show() {
+            TypewriterTextBox::show();
+            lines.reset();
+            nextLine();
+        }
+
+        void setSize(int w, int h) {
+            TypewriterTextBox::setSize(w, h);
+            continueArrow.setPosition(size.left + w - continueArrow.getLocalBounds().width - 1,
+                    size.top + h - continueArrow.getLocalBounds().height - 1);
+        }
+
+        void setPosition(int x, int y) {
+            TypewriterTextBox::setPosition(x, y);
+            continueArrow.setPosition(x + size.width - continueArrow.getLocalBounds().width - 1,
+                    y + size.height - continueArrow.getLocalBounds().height - 1);
+        }
+
+        void setDialogue(Dialogue lines_) {
+            lines = lines_;
+        }
+
+    protected:
+        Dialogue lines;             // the lines this textbox contains
+        sf::Sprite continueArrow;   // the little arrow that will show when there are more lines
+        sf::Texture contTexture;    // the texture of the continue arrow
+
+        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
+            if (!hidden) {
+                TypewriterTextBox::draw(target, states);
+                if (lines.hasMoreLines() && lineFinished) {
+                    target.draw(continueArrow);
+                }
             }
         }
 };

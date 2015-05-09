@@ -6,6 +6,7 @@
 #include "Character.hpp"
 #include "Scene.hpp"
 #include "Door.hpp"
+#include "Dialogue.hpp"
 #include "TextBox.hpp"
 #include "SpriteSheet.hpp"
 #define SCRWIDTH 800
@@ -51,7 +52,8 @@ int main(int argc, char **argv) {
 
     scene.setActive();
 
-    TypewriterTextBox textbox(sf::Rect<int>(5, 5, 200, 35), 18.0f);
+    DialogueTextBox textbox(sf::Rect<int>(5, 5, 200, 35), 18.0f, "images/more-line.png");
+
     int charWidths[68] =
        //A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
         {7,6,6,6,5,5,6,6,2,5,6,5,8,6,6,6,6,6,6,6,6,7,8,6,6,5,
@@ -78,10 +80,18 @@ int main(int argc, char **argv) {
     }
     tiles.setSmooth(false);
 
+    Dialogue npc1Dia;
+    npc1Dia.addLine("My name is Robert Alexandrius Dominus III, but you can probably just call me Rob. That's what my friends call me, anyway.");
+    npc1Dia.addLine("Oh no, was that too familiar? I'm sorry.");
+    npc1Dia.addLine("Well, this is awkward. Goodbye then.");
+
+    Dialogue npc2Dia;
+    npc2Dia.addLine("My name is Harold, actually. Nice to meet you, Daniel!");
+
     Character npc1(dan, sf::Vector2f(100, 150), sf::Rect<float>(3, 22, 18, 12));
-    npc1.setText("My name is Robert Alexandrius Dominus III, but you can probably just call me Rob. That's what my friends call me, anyway.");
+    npc1.setText(npc1Dia);
     Character npc2(dan, sf::Vector2f(200, 24), sf::Rect<float>(3, 22, 18, 12));
-    npc2.setText("My name is Harold, actually. Nice to meet you, Daniel!");
+    npc2.setText(npc2Dia);
 
     scene.add(&guy);
     scene.add(&npc1);
@@ -146,18 +156,18 @@ int main(int argc, char **argv) {
                     case sf::Keyboard::X:
                         if (textbox.hidden) {
                             if (guy.checked != NULL) {
-                                if (guy.checked->getText() != "") {
+                                if (guy.checked->getText().numLines() > 0) {
                                     guy.checked->setDirection((guy.getDirection() + 4) % 8);
-                                    textbox.setText(guy.checked->getText());
+                                    textbox.setDialogue(guy.checked->getText());
                                     textbox.show();
                                 } else {
-                                    textbox.setText("No problem here.");
+                                    textbox.setDialogue(Dialogue("No problem here."));
                                     textbox.show();
                                 }
                             }
                         } else {
-                            if (textbox.finished) {
-                                textbox.hide();
+                            if (textbox.lineFinished) {
+                                textbox.nextLine();
                             }
                         }
                         break;
