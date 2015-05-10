@@ -234,7 +234,7 @@ class DialogueTextBox : public TypewriterTextBox {
         DialogueTextBox (sf::Rect<int> dimensions,
                 float lettersPerSecond,
                 Dialogue lines_,
-                sf::Sprite continueArrow_)
+                Animation continueArrow_)
                 : TypewriterTextBox(dimensions, lettersPerSecond) {
             lines = lines_;
             continueArrow = continueArrow_;
@@ -242,21 +242,10 @@ class DialogueTextBox : public TypewriterTextBox {
 
         DialogueTextBox (sf::Rect<int> dimensions,
                 float lettersPerSecond,
-                sf::Sprite continueArrow_)
+                Animation continueArrow_)
                 : TypewriterTextBox(dimensions, lettersPerSecond) {
             lines = Dialogue();
             continueArrow = continueArrow_;
-        }
-
-        DialogueTextBox (sf::Rect<int> dimensions,
-                float lettersPerSecond,
-                std::string contArrowFilename)
-                : TypewriterTextBox(dimensions, lettersPerSecond) {
-            lines = Dialogue();
-            if (!contTexture.loadFromFile(contArrowFilename)) {
-                std::cerr << "Failed to load continue arrow for text box at " << contArrowFilename << "!" << std::endl;
-            }
-            continueArrow = sf::Sprite(contTexture);
         }
 
         void nextLine() {
@@ -289,9 +278,16 @@ class DialogueTextBox : public TypewriterTextBox {
             lines = lines_;
         }
 
+        void update() {
+            if (!hidden) {
+                TypewriterTextBox::update();
+                continueArrow.update();
+            }
+        }
+
     protected:
         Dialogue lines;             // the lines this textbox contains
-        sf::Sprite continueArrow;   // the little arrow that will show when there are more lines
+        Animation continueArrow;    // the little arrow that will show when there are more lines
         sf::Texture contTexture;    // the texture of the continue arrow
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {

@@ -86,6 +86,10 @@ class Animation : public sf::Drawable {
             return position;
         }
 
+        sf::Rect<float> getLocalBounds() const {
+            return getCurrentSprite().getLocalBounds();
+        }
+
         void setPosition(sf::Vector2f pos) {
             setPosition(pos.x, pos.y);
         }

@@ -52,7 +52,16 @@ int main(int argc, char **argv) {
 
     scene.setActive();
 
-    DialogueTextBox textbox(sf::Rect<int>(5, 5, 200, 35), 18.0f, "images/more-line.png");
+    SpriteSheet contArrowSheet("images/more-line.png", 4, 1);
+    Animation contArrow;
+    contArrow.addFrame(contArrowSheet.getSprite(0,0), 290);
+    contArrow.addFrame(contArrowSheet.getSprite(1,0), 170);
+    contArrow.addFrame(contArrowSheet.getSprite(2,0), 170);
+    contArrow.addFrame(contArrowSheet.getSprite(3,0), 290);
+    contArrow.addFrame(contArrowSheet.getSprite(2,0), 170);
+    contArrow.addFrame(contArrowSheet.getSprite(1,0), 170);
+
+    DialogueTextBox textbox(sf::Rect<int>(5, 5, 200, 35), 18.0f, contArrow);
 
     int charWidths[68] =
        //A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
@@ -71,8 +80,6 @@ int main(int argc, char **argv) {
     bool arrows[4] = { false, false, false, false };
 
     SpriteSheet dan("images/dan.png", 3, 8);
-    dan.getSprite(1,1);
-
     Character guy(dan, sf::Vector2f(0, 16), sf::Rect<float>(5, 24, 14, 8));
 
     if (!tiles.loadFromFile("images/tilemap.png")) {
