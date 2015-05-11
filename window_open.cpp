@@ -93,7 +93,17 @@ int main(int argc, char **argv) {
     npc1Dia.addLine("Well, this is awkward. Goodbye then.");
 
     Dialogue npc2Dia;
-    npc2Dia.addLine("My name is Harold, actually. Nice to meet you, Daniel!");
+    npc2Dia.addLine("My name is Harold.\nIt's nice to meet you, Daniel!\nThis is a new line.");
+    npc2Dia.addLine("Whoa, I think that was a haiku!");
+
+    DialogueTextBox box(sf::Rect<int>(5, 5, 200, 35), 18.0f, contArrow);
+    if (!box.setFont(string("images/ebfont.png"), 11, charWidths,
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?' ")) {
+        return -2;
+    }
+    box.setDialogue(Dialogue("Well, this is awkward. Goodbye then."));
+    box.show();
+    // AIAS
 
     Character npc1(dan, sf::Vector2f(100, 150), sf::Rect<float>(3, 22, 18, 12));
     npc1.setText(npc1Dia);
@@ -289,13 +299,13 @@ int main(int argc, char **argv) {
         camera.setCenter(cameraX, cameraY);
         window.setView(camera);
         textbox.setPosition((int)cameraX - textbox.getSizeRect().width/2, (int)cameraY + SCRHEIGHT/4 - 39);
+        box.setPosition((int)cameraX - box.getSizeRect().width/2, (int)cameraY + SCRHEIGHT/4 - 39);
 
         window.clear(sf::Color::Black);
         window.draw(scene);
         window.draw(scene2);
         window.draw(textbox);
         window.display();
-
     }
 
     return 0;

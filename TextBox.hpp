@@ -1,3 +1,6 @@
+#ifndef SPICE_TEXTBOX_HPP
+#define SPICE_TEXTBOX_HPP
+
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
@@ -17,7 +20,7 @@ class TextBox : public sf::Drawable {
         }
 
         void setText(std::string string) {
-            string.append(" ");
+            string.append("\n");
             letters.resize(string.length() * 4);
             letters.setPrimitiveType(sf::Quads);
             int nextX = 0;
@@ -26,10 +29,10 @@ class TextBox : public sf::Drawable {
 
             std::string nextWord;
             int wordStart = 0;
-            int nextSpace = 0;
-            while (nextSpace >= 0) {
-                nextSpace = string.find_first_of(' ', wordStart);
-                nextWord = string.substr(wordStart, nextSpace - wordStart + 1);
+            int nextWhitespace = 0;
+            while (nextWhitespace >= 0) {
+                nextWhitespace = std::min(string.find_first_of('\n', wordStart), string.find_first_of(' ', wordStart));
+                nextWord = string.substr(wordStart, nextWhitespace - wordStart + 1);
 
                 // find width of the next word
                 int i;
@@ -44,6 +47,20 @@ class TextBox : public sf::Drawable {
                 }
 
                 for (i = 0; i < nextWord.length(); i++) {
+                    if (nextWord[i] == '\n') {
+                        nextX = 0;
+                        nextY += charHeight + 1;
+                        letters[totalChars+i*4].texCoords = sf::Vector2f(0, 0);
+                        letters[totalChars+i*4+1].texCoords = sf::Vector2f(0, 0);
+                        letters[totalChars+i*4+2].texCoords = sf::Vector2f(0, 0);
+                        letters[totalChars+i*4+3].texCoords = sf::Vector2f(0, 0);
+                        letters[totalChars+i*4].position = sf::Vector2f(0, 0);
+                        letters[totalChars+i*4+1].position = sf::Vector2f(0, 0);
+                        letters[totalChars+i*4+2].position = sf::Vector2f(0, 0);
+                        letters[totalChars+i*4+3].position = sf::Vector2f(0, 0);
+                        break;
+                    }
+
                     int texID = decoder.find_first_of(nextWord[i], 0);
 
                     if (texID < 0) {
@@ -65,7 +82,7 @@ class TextBox : public sf::Drawable {
                 }
 
                 totalChars += nextWord.length() * 4;
-                wordStart = nextSpace + 1;
+                wordStart = nextWhitespace + 1;
             }
 
             text = string;
@@ -299,3 +316,4 @@ class DialogueTextBox : public TypewriterTextBox {
             }
         }
 };
+#endif // SPICE_TEXTBOX_HPP
