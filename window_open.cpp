@@ -1,3 +1,7 @@
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#include <windows.h>
+#define debug
+#endif
 #include <iostream>
 #include <cstdio>
 #include <SFML/Graphics.hpp>
@@ -15,6 +19,13 @@
 using std::string;
 
 int main(int argc, char **argv) {
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#if !defined(debug)
+    FreeConsole();
+#else
+    std::cout << "Hi, you're running in Windows debug mode. Remember to turn this off later!" << std::endl;
+#endif
+#endif
     sf::RenderWindow window(sf::VideoMode(SCRWIDTH, SCRHEIGHT), "Secret Spice");
     // DANG THIS IS THE BEST THING:
     sf::View camera(sf::FloatRect(0, 0, SCRWIDTH/2, SCRHEIGHT/2));
