@@ -179,15 +179,18 @@ int main(int argc, char **argv) {
                                 if (guy.checked->getText().numLines() > 0) {
                                     guy.checked->setDirection((guy.getDirection() + 4) % 8);
                                     textbox.setDialogue(guy.checked->getText());
-                                    textbox.show();
                                 } else {
                                     textbox.setDialogue(Dialogue("No problem here."));
-                                    textbox.show();
                                 }
+                                textbox.show();
+                                sm.currentScene->setActive(false);
                             }
                         } else {
                             if (textbox.lineFinished) {
                                 textbox.nextLine();
+                            }
+                            if (textbox.hidden) {
+                                sm.currentScene->setActive(true);
                             }
                         }
                         break;
@@ -271,11 +274,6 @@ int main(int argc, char **argv) {
                             guy.getPosition().y + vmove))]) {
                 vmove = 0.0;
             }
-        }
-
-        if (!textbox.hidden) {
-            hmove = 0.0;
-            vmove = 0.0;
         }
 
         guy.setSpeed(hmove, vmove);

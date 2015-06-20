@@ -14,7 +14,7 @@ void SceneManager::setScene(Scene* scene) {
     }
     currentScene = scene;
     currentScene->parent = this;
-    scene->setActive();
+    scene->setVisible();
 }
 
 void SceneManager::update() {

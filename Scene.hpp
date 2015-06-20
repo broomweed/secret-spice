@@ -16,7 +16,6 @@
  * drawing in order of drawDepth. */
 class Scene : public sf::Drawable {
     public:
-        bool active;
         SceneManager* parent;
 
         Scene(Thing* objs_, int size) {
@@ -158,7 +157,7 @@ class Scene : public sf::Drawable {
                 mc->face(targetDir);
                 mc->setPosition(destCoords.x, destCoords.y);
                 mc->stopMoving();
-                transferring->setActive();
+                transferring->setVisible();
                 transferring->add(mc);
                 transferring->setMC(mc);
                 for (int i = 0; i < transferring->getNumObjs(); i++) {
@@ -219,10 +218,18 @@ class Scene : public sf::Drawable {
             }
         }
 
-        void setActive() {
+        void setVisible() {
             active = true;
             visible = true;
             loopTime.restart();
+        }
+
+        void setActive(bool active_) {
+            if (!active_) {
+                update(); // make sure stuff ends up where it is supposed to be, even if deactivated
+            }
+            active = active_;
+            update();
         }
 
         void transfer(Scene *scene, sf::Vector2f destCoords_, int targetDir_) {
@@ -263,6 +270,7 @@ class Scene : public sf::Drawable {
         sf::Vector2f destCoords;
         Thing *mainCharacter;
         bool visible;
+        bool active;
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
             if (visible || transferring) {
