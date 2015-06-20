@@ -2,7 +2,9 @@
 #define SPICE_SCENE_HPP
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include "SceneManager.hpp"
 #include "Thing.hpp"
+#include "GameObject.hpp"
 #include "TileMap.hpp"
 
 #ifndef SCRWIDTH
@@ -14,6 +16,9 @@
  * drawing in order of drawDepth. */
 class Scene : public sf::Drawable {
     public:
+        bool active;
+        SceneManager* parent;
+
         Scene(Thing* objs_, int size) {
             for (int i = 0; i < size; i++) {
                 add(&objs_[i]);
@@ -41,7 +46,9 @@ class Scene : public sf::Drawable {
         void init() {
             num = 0;
             visible = false;
+            active = false;
             transferring = NULL;
+            parent = NULL;
             initFadeRect();
         }
 
@@ -109,24 +116,30 @@ class Scene : public sf::Drawable {
 
         void update() {
             if (visible) {
-                lastLoop = loopTime.getElapsedTime();
-                loopTime.restart();
-                if (fadeRect.getFillColor().a > 0) {
-                    // Fade in
-                    fadeRect.setFillColor(sf::Color(fadeRect.getFillColor().r, fadeRect.getFillColor().g, fadeRect.getFillColor().b,
-                            std::max(0.0f, fadeRect.getFillColor().a - lastLoop.asSeconds() * 255))); // take 1 second to fade in
-                } else {
-                    // Interphase
-                    for (int i = 0; i < objs.size(); i++) {
-                        if (!objs[i]->active && !getMC()->hitTest(*objs[i])) {
-                            // Re-enable things you aren't touching
-                            std::cout << "obj #" << i << " re-enabled." << std::endl;
-                            objs[i]->active = true;
+                if (active) {
+                    lastLoop = loopTime.getElapsedTime();
+                    loopTime.restart();
+                    if (fadeRect.getFillColor().a > 0) {
+                        // Fade in
+                        fadeRect.setFillColor(sf::Color(fadeRect.getFillColor().r, fadeRect.getFillColor().g, fadeRect.getFillColor().b,
+                                std::max(0.0f, fadeRect.getFillColor().a - lastLoop.asSeconds() * 255))); // take 1 second to fade in
+                    } else {
+                        // Interphase
+                        for (int i = 0; i < objs.size(); i++) {
+                            if (!objs[i]->active && !getMC()->hitTest(*objs[i])) {
+                                // Re-enable things you aren't touching
+                                std::cout << "obj #" << i << " re-enabled." << std::endl;
+                                objs[i]->active = true;
+                            }
+                            // Move the sprites around
+                            move_sprite((*objs[i]), objs[i]->getSpeed().x * lastLoop.asSeconds() * 30, objs[i]->getSpeed().y * lastLoop.asSeconds() * 30);
+                            objs[i]->update();
                         }
-                        // Move the sprites around
-                        move_sprite((*objs[i]), objs[i]->getSpeed().x * lastLoop.asSeconds() * 30, objs[i]->getSpeed().y * lastLoop.asSeconds() * 30);
-                        objs[i]->update();
                     }
+                }
+            } else {
+                if (active) {
+                    active = false;
                 }
             }
             if (transferring) {
@@ -159,6 +172,7 @@ class Scene : public sf::Drawable {
                 }
                 transferring->fadeRect.setFillColor(sf::Color(
                             fadeRect.getFillColor().r, fadeRect.getFillColor().g, fadeRect.getFillColor().b, 255));
+                parent->setScene(transferring);
                 transferring = NULL;
             }
         }
@@ -206,6 +220,7 @@ class Scene : public sf::Drawable {
         }
 
         void setActive() {
+            active = true;
             visible = true;
             loopTime.restart();
         }

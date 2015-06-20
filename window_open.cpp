@@ -8,6 +8,7 @@
 #include "Thing.hpp"
 #include "GameObject.hpp"
 #include "Character.hpp"
+#include "SceneManager.hpp"
 #include "Scene.hpp"
 #include "Door.hpp"
 #include "Dialogue.hpp"
@@ -61,7 +62,7 @@ int main(int argc, char **argv) {
     Scene scene(tilemap);
     Scene scene2(tilemap2);
 
-    scene.setActive();
+    SceneManager sm(&scene);
 
     SpriteSheet contArrowSheet("images/more-line.png", 4, 1);
     Animation contArrow;
@@ -280,8 +281,7 @@ int main(int argc, char **argv) {
         guy.setSpeed(hmove, vmove);
 
         textbox.update();
-        scene.update();
-        scene2.update();
+        sm.update();
         float cameraX, cameraY;
         // it's all /4 instead of /2 because the camera is zoomed in 2x on a 400x300 section
         if (guy.getPosition().x < SCRWIDTH/4) {
