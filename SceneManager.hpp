@@ -4,7 +4,7 @@ class Scene;
 
 /* This class is super simple. It really only exists so that
  * you can know which scene is the active one at any given
- * time, and so that only the active class gets updated.
+ * time, and so that only the active scene gets updated.
  * however, since the scenes have to know which manager is
  * managing them, the file structure has gotten a little
  * complicated. Ah, well, c'est la vie. */

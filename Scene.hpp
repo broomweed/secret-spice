@@ -229,7 +229,10 @@ class Scene : public sf::Drawable {
                 update(); // make sure stuff ends up where it is supposed to be, even if deactivated
             }
             active = active_;
-            update();
+        }
+
+        bool isActive() {
+            return active;
         }
 
         void transfer(Scene *scene, sf::Vector2f destCoords_, int targetDir_) {

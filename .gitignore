@@ -1,6 +1,8 @@
 *.o
 *.swp
 *.swo
+*.un~
+demo*
 lsfml_src/
 lsfml_build/
 images/logo.gif

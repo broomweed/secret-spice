@@ -31,7 +31,8 @@ int main(int argc, char **argv) {
     // DANG THIS IS THE BEST THING:
     sf::View camera(sf::FloatRect(0, 0, SCRWIDTH/2, SCRHEIGHT/2));
     window.setView(camera);
-    sf::Texture tiles;
+
+    bool menuOpen = false;
 
     const int level[] = {
         0,0,1,2,0,0,0,0,3,4,5,6,7,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,1,2,0,8,9,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,14,15,16,17,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,8,9,10,11,12
@@ -93,11 +94,6 @@ int main(int argc, char **argv) {
 
     SpriteSheet dan("images/dan.png", 3, 8);
     Character guy(dan, sf::Vector2f(0, 16), sf::Rect<float>(5, 24, 14, 8));
-
-    if (!tiles.loadFromFile("images/tilemap.png")) {
-        fprintf(stderr, "something went wrong (2)!\n");
-    }
-    tiles.setSmooth(false);
 
     Dialogue npc1Dia;
     npc1Dia.addLine("My name is Robert Alexandrius Dominus III, but you can probably just call me Rob. That's what my friends call me, anyway.");
@@ -175,15 +171,17 @@ int main(int argc, char **argv) {
                         break;
                     case sf::Keyboard::X:
                         if (textbox.hidden) {
-                            if (guy.checked != NULL) {
-                                if (guy.checked->getText().numLines() > 0) {
-                                    guy.checked->setDirection((guy.getDirection() + 4) % 8);
-                                    textbox.setDialogue(guy.checked->getText());
-                                } else {
-                                    textbox.setDialogue(Dialogue("No problem here."));
+                            if (sm.currentScene->isActive()) {
+                                if (guy.checked != NULL) {
+                                    if (guy.checked->getText().numLines() > 0) {
+                                        guy.checked->setDirection((guy.getDirection() + 4) % 8);
+                                        textbox.setDialogue(guy.checked->getText());
+                                    } else {
+                                        textbox.setDialogue(Dialogue("No problem here."));
+                                    }
+                                    textbox.show();
+                                    sm.currentScene->setActive(false);
                                 }
-                                textbox.show();
-                                sm.currentScene->setActive(false);
                             }
                         } else {
                             if (textbox.lineFinished) {
@@ -192,6 +190,19 @@ int main(int argc, char **argv) {
                             if (textbox.hidden) {
                                 sm.currentScene->setActive(true);
                             }
+                        }
+                        break;
+                    case sf::Keyboard::Return:
+                        if (!menuOpen) {
+                            if (sm.currentScene->isActive()) {
+                                std::cout << "Menu is now open." << std::endl;
+                                sm.currentScene->setActive(false);
+                                menuOpen = true;
+                            }
+                        } else {
+                            std::cout << "Closed menu." << std::endl;
+                            sm.currentScene->setActive(true);
+                            menuOpen = false;
                         }
                         break;
                 }
