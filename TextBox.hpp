@@ -358,23 +358,18 @@ class DialogueTextBox : public TypewriterTextBox {
         }
 };
 
-template<typename T>
-class MenuTextBox : public TextBox {
+/* a generic version of the MenuTextBox class with no templating,
+ * so that we can handle nitty-gritty stuff like selecting up/down without
+ * having to write separate code for each possible type */
+class MenuTextBoxBase : public TextBox {
     public:
-        MenuTextBox<T>(sf::Rect<int> dimensions,
-                Animation selectorArrow_) : TextBox(dimensions) {
+        MenuTextBoxBase(sf::Rect<int> dimensions,
+                Animation selectorArrow_)
+                : TextBox(dimensions) {
             selectorArrow = selectorArrow_;
             setOffset(selectorArrow.getLocalBounds().width + 2, 1);
             setSelection(0);
-        }
-
-        void setMenu(Menu<T> menu_) {
-            menu = menu_;
-            std::string textToSet = "";
-            for (int i = 0; i < menu.names.size(); i++) {
-                textToSet += menu.getItemName(i) + "\n";
-            }
-            setText(textToSet);
+            menuLength = 1;
         }
 
         void setSelection(int i) {
@@ -383,7 +378,7 @@ class MenuTextBox : public TextBox {
         }
 
         void selectNext() {
-            if (selectionIndex == menu.items.size() - 1) {
+            if (selectionIndex == menuLength - 1) {
                 setSelection(0);
             } else {
                 setSelection(selectionIndex + 1);
@@ -392,7 +387,7 @@ class MenuTextBox : public TextBox {
 
         void selectPrev() {
             if (selectionIndex == 0) {
-                setSelection(menu.items.size() - 1);
+                setSelection(menuLength - 1);
             } else {
                 setSelection(selectionIndex - 1);
             }
@@ -407,14 +402,10 @@ class MenuTextBox : public TextBox {
             return selectionIndex;
         }
 
-        T getSelectedItem() {
-            return menu.items[selectionIndex];
-        }
-
-    private:
+    protected:
         Animation selectorArrow;
-        Menu<T> menu;
         int selectionIndex;
+        int menuLength;
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
             if (!hidden) {
@@ -422,6 +413,34 @@ class MenuTextBox : public TextBox {
                 target.draw(selectorArrow);
             }
         }
+};
 
+template<typename T>
+class MenuTextBox : public MenuTextBoxBase {
+    public:
+        MenuTextBox<T>(sf::Rect<int> dimensions,
+                Animation selectorArrow_)
+                : MenuTextBoxBase(dimensions, selectorArrow_) { }
+
+        void setMenu(Menu<T> menu_) {
+            menu = menu_;
+            std::string textToSet = "";
+            for (int i = 0; i < menu.names.size(); i++) {
+                textToSet += menu.getItemName(i) + "\n";
+            }
+            setText(textToSet);
+            menuLength = menu.items.size(); // now the base class knows about the length
+        }
+
+        T getSelectedItem() {
+            return menu.items[selectionIndex];
+        }
+
+    protected:
+        Menu<T> menu;
+
+        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
+            MenuTextBoxBase::draw(target, states);
+        }
 };
 #endif // SPICE_TEXTBOX_HPP

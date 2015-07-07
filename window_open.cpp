@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
     menuBox.setMenu(mainMenu);
     menuBox.setSelection(0);
 
-    MenuTextBox<int> *currentOpenMenu = NULL;
+    MenuTextBoxBase *currentOpenMenu = NULL;
 
     /* -- Textboxes set up -- */
 
