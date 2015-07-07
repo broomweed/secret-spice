@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include "Menu.hpp"
 
 /* This is a text box. This textbox is nothing special. It
  * can change its font on command, though. It just displays text
@@ -17,6 +18,8 @@ class TextBox : public sf::Drawable {
         TextBox(sf::Rect<int> dimensions) {
             hidden = true;
             size = dimensions;
+            initialSize = size;
+            offset = sf::Vector2f(1, 1);
         }
 
         void setText(std::string string) {
@@ -38,10 +41,13 @@ class TextBox : public sf::Drawable {
                 int i;
                 int pxWidth = 0;
                 for (i = 0; i < nextWord.length(); i++) {
+                    /* add up the widths of the individual letters in the word to find its width */
+                    if (nextWord[i] == '\n') continue; // ignore newlines; they have no width
                     pxWidth += widths[decoder.find_first_of(nextWord[i], 0)];
                 }
 
-                if (nextX + pxWidth > size.width) {
+                if (nextX + pxWidth > size.width - offset.x) {
+                    /* if next word doesn't fit on the line, go to the next line */
                     nextX = 0;
                     nextY += charHeight + 1;
                 }
@@ -50,6 +56,8 @@ class TextBox : public sf::Drawable {
                     if (nextWord[i] == '\n') {
                         nextX = 0;
                         nextY += charHeight + 1;
+                        /* hide the character representing the newline by setting it to (0,0) --
+                         * otherwise it would output random junk into the textbox */
                         letters[totalChars+i*4].texCoords = sf::Vector2f(0, 0);
                         letters[totalChars+i*4+1].texCoords = sf::Vector2f(0, 0);
                         letters[totalChars+i*4+2].texCoords = sf::Vector2f(0, 0);
@@ -73,10 +81,21 @@ class TextBox : public sf::Drawable {
                     letters[totalChars+i*4+2].texCoords = texLocs[texID*4+2].texCoords;
                     letters[totalChars+i*4+3].texCoords = texLocs[texID*4+3].texCoords;
 
-                    letters[totalChars+i*4].position = sf::Vector2f(size.left + nextX, size.top + nextY);
-                    letters[totalChars+i*4+1].position = sf::Vector2f(size.left + nextX + widths[texID], size.top + nextY);
-                    letters[totalChars+i*4+2].position = sf::Vector2f(size.left + nextX + widths[texID], size.top + nextY + charHeight);
-                    letters[totalChars+i*4+3].position = sf::Vector2f(size.left + nextX, size.top + nextY + charHeight);
+                    letters[totalChars+i*4].position =
+                            sf::Vector2f(offset.x + size.left + nextX,
+                            offset.y + size.top + nextY);
+
+                    letters[totalChars+i*4+1].position =
+                            sf::Vector2f(offset.x + size.left + nextX + widths[texID],
+                            offset.y + size.top + nextY);
+
+                    letters[totalChars+i*4+2].position =
+                            sf::Vector2f(offset.x + size.left + nextX + widths[texID],
+                            offset.y + size.top + nextY + charHeight);
+
+                    letters[totalChars+i*4+3].position =
+                            sf::Vector2f(offset.x + size.left + nextX,
+                            offset.y + size.top + nextY + charHeight);
 
                     nextX += widths[texID];
                 }
@@ -95,9 +114,13 @@ class TextBox : public sf::Drawable {
 
         void show() {
             if (dirtyPos) {
-                setText(text);
+                cleanPos();
             }
             hidden = false;
+        }
+
+        virtual void cleanPos() {
+            setText(text);
         }
 
         void setPosition(sf::Vector2u pos) {
@@ -108,6 +131,10 @@ class TextBox : public sf::Drawable {
             size.left = x;
             size.top = y;
             dirtyPos = true;
+        }
+
+        void updatePosition(float cameraX, float cameraY, int scrwidth, int scrheight) {
+            setPosition((int)cameraX - scrwidth/2 + initialSize.left, (int)cameraY - scrheight/2 + initialSize.top);
         }
 
         void setSize(sf::Vector2u size_) {
@@ -152,6 +179,14 @@ class TextBox : public sf::Drawable {
             return true;
         }
 
+        void setOffset(float x, float y) {
+            setOffset(sf::Vector2f(x, y));
+        }
+
+        void setOffset(sf::Vector2f offset_) {
+            offset = offset_;
+        }
+
     protected:
         std::string text;           // text to display
         bool dirtyPos;              // has position/size been changed since it was last shown
@@ -159,15 +194,17 @@ class TextBox : public sf::Drawable {
         sf::VertexArray texLocs;    // locations of font letter rectangles
         sf::VertexArray letters;    // positions of letters on screen
         sf::Rect<int> size;         // size/location of the text box
+        sf::Rect<int> initialSize;  // initial dimensions of text box
         int* widths;                // the widths of each individual character
         int charHeight;             // the height of every character
         std::string decoder;        // the order of the characters within the texture
+        sf::Vector2f offset;        // the offset of the letters from the upper-left corner
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
             if (!hidden) {
                 // draw a background
-                sf::RectangleShape bg(sf::Vector2f(size.width + 2, size.height + 2));
-                bg.setPosition(sf::Vector2f(size.left - 1, size.top - 1));
+                sf::RectangleShape bg(sf::Vector2f(size.width, size.height));
+                bg.setPosition(sf::Vector2f(size.left, size.top));
                 bg.setFillColor(sf::Color(sf::Color::Black));
                 target.draw(bg, states);
                 // apply texture
@@ -281,15 +318,18 @@ class DialogueTextBox : public TypewriterTextBox {
 
         void setSize(int w, int h) {
             TypewriterTextBox::setSize(w, h);
-            continueArrow.setPosition(size.left + w - continueArrow.getLocalBounds().width - 1,
-                    size.top + h - continueArrow.getLocalBounds().height - 1);
         }
 
         void setPosition(int x, int y) {
             TypewriterTextBox::setPosition(x, y);
-            continueArrow.setPosition(x + size.width - continueArrow.getLocalBounds().width - 1,
-                    y + size.height - continueArrow.getLocalBounds().height - 1);
         }
+
+        void cleanPos() {
+            TypewriterTextBox::cleanPos();
+            continueArrow.setPosition(size.left + size.width + offset.x - continueArrow.getLocalBounds().width - 1,
+                    size.top + size.height - continueArrow.getLocalBounds().height - 1);
+        }
+
 
         void setDialogue(Dialogue lines_) {
             lines = lines_;
@@ -315,5 +355,56 @@ class DialogueTextBox : public TypewriterTextBox {
                 }
             }
         }
+};
+
+template<typename T>
+class MenuTextBox : public TextBox {
+    public:
+        MenuTextBox<T>(sf::Rect<int> dimensions,
+                Animation selectorArrow_) : TextBox(dimensions) {
+            selectorArrow = selectorArrow_;
+            setOffset(selectorArrow.getLocalBounds().width + 2, 1);
+            setSelection(0);
+        }
+
+        void setMenu(Menu<T> menu_) {
+            menu = menu_;
+            std::string textToSet = "";
+            for (int i = 0; i < menu.names.size(); i++) {
+                textToSet += menu.getItemName(i) + "\n";
+            }
+            setText(textToSet);
+        }
+
+        void setSelection(int i) {
+            selectorArrow.setPosition(size.left + 1, size.top + getSelection() * (charHeight + 1) + 1);
+            selectionIndex = i;
+        }
+
+        void cleanPos() {
+            TextBox::cleanPos();
+            selectorArrow.setPosition(size.left + 1, size.top + getSelection() * (charHeight + 1) + 1);
+        }
+
+        int getSelection() {
+            return selectionIndex;
+        }
+
+        T getSelectedItem() {
+            return menu.items[selectionIndex];
+        }
+
+    private:
+        Animation selectorArrow;
+        Menu<T> menu;
+        int selectionIndex;
+
+        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
+            if (!hidden) {
+                TextBox::draw(target, states);
+                target.draw(selectorArrow);
+            }
+        }
+
 };
 #endif // SPICE_TEXTBOX_HPP

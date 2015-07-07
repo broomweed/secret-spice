@@ -227,6 +227,8 @@ class Scene : public sf::Drawable {
         void setActive(bool active_) {
             if (!active_) {
                 update(); // make sure stuff ends up where it is supposed to be, even if deactivated
+            } else {
+                loopTime.restart();
             }
             active = active_;
         }

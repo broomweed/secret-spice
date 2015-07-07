@@ -65,6 +65,8 @@ int main(int argc, char **argv) {
 
     SceneManager sm(&scene);
 
+    /* -- Setting up textboxes -- */
+
     SpriteSheet contArrowSheet("images/more-line.png", 4, 1);
     Animation contArrow;
     contArrow.addFrame(contArrowSheet.getSprite(0,0), 290);
@@ -74,7 +76,11 @@ int main(int argc, char **argv) {
     contArrow.addFrame(contArrowSheet.getSprite(2,0), 170);
     contArrow.addFrame(contArrowSheet.getSprite(1,0), 170);
 
-    DialogueTextBox textbox(sf::Rect<int>(5, 5, 200, 35), 18.0f, contArrow);
+    SpriteSheet selArrowSheet("images/menu-selector.png", 1, 1);
+    Animation selArrow(selArrowSheet.getSprite(0,0));
+
+    DialogueTextBox dialogueBox(sf::Rect<int>(100, 261, 200, 37), 18.0f, contArrow);
+    MenuTextBox<int> menuBox(sf::Rect<int>(5, 5, 80, 37), selArrow);
 
     int charWidths[68] =
        //A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
@@ -84,11 +90,27 @@ int main(int argc, char **argv) {
        //0 1 2 3 4 5 6 7 8 9 . , ! ? ' space
          5,3,5,5,6,5,5,5,5,5,2,3,2,5,3,2};
 
-    if (!textbox.setFont(string("images/ebfont.png"), 11, charWidths,
+    if (!dialogueBox.setFont(string("images/ebfont.png"), 11, charWidths,
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?' ")) {
         fprintf(stderr, "Something went wrong with the font!\n");
         return -2;
     }
+
+    if (!menuBox.setFont(string("images/ebfont.png"), 11, charWidths,
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?' ")) {
+        fprintf(stderr, "Something went wrong with the menu's font!\n");
+        return -2;
+    }
+
+    Menu<int> mainMenu;
+    mainMenu.addItem("Inventory", 0);
+    mainMenu.addItem("Status", 1);
+    mainMenu.addItem("Fashionability", 2);
+
+    menuBox.setMenu(mainMenu);
+    menuBox.setSelection(0);
+
+    /* -- Textboxes set up -- */
 
     bool arrows[4] = { false, false, false, false };
 
@@ -170,24 +192,24 @@ int main(int argc, char **argv) {
                         arrows[3] = false;
                         break;
                     case sf::Keyboard::X:
-                        if (textbox.hidden) {
+                        if (dialogueBox.hidden) {
                             if (sm.currentScene->isActive()) {
                                 if (guy.checked != NULL) {
                                     if (guy.checked->getText().numLines() > 0) {
                                         guy.checked->setDirection((guy.getDirection() + 4) % 8);
-                                        textbox.setDialogue(guy.checked->getText());
+                                        dialogueBox.setDialogue(guy.checked->getText());
                                     } else {
-                                        textbox.setDialogue(Dialogue("No problem here."));
+                                        dialogueBox.setDialogue(Dialogue("No problem here."));
                                     }
-                                    textbox.show();
+                                    dialogueBox.show();
                                     sm.currentScene->setActive(false);
                                 }
                             }
                         } else {
-                            if (textbox.lineFinished) {
-                                textbox.nextLine();
+                            if (dialogueBox.lineFinished) {
+                                dialogueBox.nextLine();
                             }
-                            if (textbox.hidden) {
+                            if (dialogueBox.hidden) {
                                 sm.currentScene->setActive(true);
                             }
                         }
@@ -195,12 +217,12 @@ int main(int argc, char **argv) {
                     case sf::Keyboard::Return:
                         if (!menuOpen) {
                             if (sm.currentScene->isActive()) {
-                                std::cout << "Menu is now open." << std::endl;
+                                menuBox.show();
                                 sm.currentScene->setActive(false);
                                 menuOpen = true;
                             }
                         } else {
-                            std::cout << "Closed menu." << std::endl;
+                            menuBox.hide();
                             sm.currentScene->setActive(true);
                             menuOpen = false;
                         }
@@ -240,6 +262,12 @@ int main(int argc, char **argv) {
                 hmove += 1.0;
             }
         }
+
+        if (!sm.currentScene->isActive()) {
+            hmove = 0.0;
+            vmove = 0.0;
+        }
+
         // basically check if they can move to a certain point in the direction. It checks the 2 corners
         // on each side that they are moving.
         if (hmove > 0) {
@@ -289,7 +317,7 @@ int main(int argc, char **argv) {
 
         guy.setSpeed(hmove, vmove);
 
-        textbox.update();
+        dialogueBox.update();
         sm.update();
         float cameraX, cameraY;
         // it's all /4 instead of /2 because the camera is zoomed in 2x on a 400x300 section
@@ -309,12 +337,15 @@ int main(int argc, char **argv) {
         }
         camera.setCenter(cameraX, cameraY);
         window.setView(camera);
-        textbox.setPosition((int)cameraX - textbox.getSizeRect().width/2, (int)cameraY + SCRHEIGHT/4 - 39);
+
+        dialogueBox.updatePosition(cameraX, cameraY, SCRWIDTH/2, SCRHEIGHT/2);
+        menuBox.updatePosition(cameraX, cameraY, SCRWIDTH/2, SCRHEIGHT/2);
 
         window.clear(sf::Color::Black);
         window.draw(scene);
         window.draw(scene2);
-        window.draw(textbox);
+        window.draw(dialogueBox);
+        window.draw(menuBox);
         window.display();
     }
 
