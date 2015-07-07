@@ -32,8 +32,6 @@ int main(int argc, char **argv) {
     sf::View camera(sf::FloatRect(0, 0, SCRWIDTH/2, SCRHEIGHT/2));
     window.setView(camera);
 
-    bool menuOpen = false;
-
     const int level[] = {
         0,0,1,2,0,0,0,0,3,4,5,6,7,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,1,2,0,8,9,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,14,15,16,17,0,0,0,0,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,9,10,11,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,5,6,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,8,9,10,11,12
     };
@@ -110,6 +108,8 @@ int main(int argc, char **argv) {
     menuBox.setMenu(mainMenu);
     menuBox.setSelection(0);
 
+    MenuTextBox<int> *currentOpenMenu = NULL;
+
     /* -- Textboxes set up -- */
 
     bool arrows[4] = { false, false, false, false };
@@ -181,12 +181,18 @@ int main(int argc, char **argv) {
                 switch(event.key.code) {
                     case sf::Keyboard::Up:
                         arrows[0] = false;
+                        if (currentOpenMenu) {
+                            currentOpenMenu->selectPrev();
+                        }
                         break;
                     case sf::Keyboard::Left:
                         arrows[1] = false;
                         break;
                     case sf::Keyboard::Down:
                         arrows[2] = false;
+                        if (currentOpenMenu) {
+                            currentOpenMenu->selectNext();
+                        }
                         break;
                     case sf::Keyboard::Right:
                         arrows[3] = false;
@@ -195,6 +201,7 @@ int main(int argc, char **argv) {
                         if (dialogueBox.hidden) {
                             if (sm.currentScene->isActive()) {
                                 if (guy.checked != NULL) {
+                                    /* OPENING DIALOGUE BOX */
                                     if (guy.checked->getText().numLines() > 0) {
                                         guy.checked->setDirection((guy.getDirection() + 4) % 8);
                                         dialogueBox.setDialogue(guy.checked->getText());
@@ -204,8 +211,17 @@ int main(int argc, char **argv) {
                                     dialogueBox.show();
                                     sm.currentScene->setActive(false);
                                 }
+                            } else {
+                                /* MENU SELECTION HANDLING */
+                                if (currentOpenMenu) {
+                                    std::cout << "You selected item #" << currentOpenMenu->getSelection() << "!" << std::endl;
+                                    currentOpenMenu->hide();
+                                    currentOpenMenu = NULL;
+                                    sm.currentScene->setActive(true);
+                                }
                             }
                         } else {
+                            /* DIALOGUE BOX HANDLING */
                             if (dialogueBox.lineFinished) {
                                 dialogueBox.nextLine();
                             }
@@ -215,16 +231,16 @@ int main(int argc, char **argv) {
                         }
                         break;
                     case sf::Keyboard::Return:
-                        if (!menuOpen) {
+                        if (menuBox.hidden) {
                             if (sm.currentScene->isActive()) {
                                 menuBox.show();
+                                currentOpenMenu = &menuBox;
                                 sm.currentScene->setActive(false);
-                                menuOpen = true;
                             }
                         } else {
                             menuBox.hide();
+                            currentOpenMenu = NULL;
                             sm.currentScene->setActive(true);
-                            menuOpen = false;
                         }
                         break;
                 }

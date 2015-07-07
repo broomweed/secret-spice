@@ -9,8 +9,9 @@
  * can change its font on command, though. It just displays text
  * immediately and can be shown or hidden. And it does automatic
  * line breaks. This class is useful for deriving text boxes that
- * do more useful things. It already has derived the TypewriterTextBox
- * class, and I hope to also derive a 'menu text box' class as well. */
+ * do more useful things. Currently, it derives the DialogueTextBox
+ * class (for talking to people) and the MenuTextBox class (for
+ * selecting things in menus.) */
 class TextBox : public sf::Drawable {
     public:
         bool hidden;
@@ -377,8 +378,24 @@ class MenuTextBox : public TextBox {
         }
 
         void setSelection(int i) {
-            selectorArrow.setPosition(size.left + 1, size.top + getSelection() * (charHeight + 1) + 1);
             selectionIndex = i;
+            cleanPos();
+        }
+
+        void selectNext() {
+            if (selectionIndex == menu.items.size() - 1) {
+                setSelection(0);
+            } else {
+                setSelection(selectionIndex + 1);
+            }
+        }
+
+        void selectPrev() {
+            if (selectionIndex == 0) {
+                setSelection(menu.items.size() - 1);
+            } else {
+                setSelection(selectionIndex - 1);
+            }
         }
 
         void cleanPos() {
