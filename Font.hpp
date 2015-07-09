@@ -5,12 +5,21 @@ class Font {
     public:
         Font() { }
 
-        Font(const std::string& filename,           // the font filename
+        Font(const std::string& filename,
+                int char_height,
+                int* char_widths,
+                const std::string& decoder_string){
+            if(!set(filename, char_height, char_widths, decoder_string)) {
+                throw -3;
+            }
+        }
+
+        bool set(const std::string& filename,       // the font filename
                 int char_height,                    // height of characters
                 int* char_widths,                   // width of each character
                 const std::string& decoder_string){ // string with characters in order as image
             if (!image.loadFromFile(filename)) {
-                throw -3;
+                return false;
             }
             decoder = decoder_string; // it's like a decoder ring ;)
             widths = char_widths;
@@ -25,6 +34,8 @@ class Font {
                 texLocs[i*4+3].texCoords = sf::Vector2f(totalWidth, char_height);
                 totalWidth += char_widths[i];
             }
+
+            return true;
         }
 
         sf::Texture image;      // the letters of the font

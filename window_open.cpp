@@ -77,8 +77,12 @@ int main(int argc, char **argv) {
        //0 1 2 3 4 5 6 7 8 9 . , ! ? ' space
          5,3,5,5,6,5,5,5,5,5,2,3,2,5,3,2};
 
-    Font ebFont(string("images/ebfont.png"), 11, charWidths,
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?' ");
+    Font ebFont;
+
+    if(!ebFont.set(string("images/ebfont.png"), 11, charWidths,
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?' ")) {
+        std::cerr << "Failed to load font successfully." << std::endl;
+    }
 
     TextBox::setGlobalFont(ebFont);
 
