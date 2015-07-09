@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
 
     Font ebFont;
 
-    if(!ebFont.set(string("images/ebfont.png"), 11, charWidths,
+    if(!ebFont.set(string("images/ebfont.png"), 11, charWidths, 2,
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?' ")) {
         std::cerr << "Failed to load font successfully." << std::endl;
     }
@@ -116,12 +116,12 @@ int main(int argc, char **argv) {
 
     /* -- Actual box initialization -- */
 
-    DialogueTextBox dialogueBox(sf::Rect<int>(100, 256, 202, 39), 18.0f, contArrow);
+    DialogueTextBox dialogueBox(sf::Rect<int>(100, 240, 200, 39), 18.0f, contArrow);
     MenuTextBox<MenuTextBoxBase*> menuBox(sf::Rect<int>(5, 5, 80, 37), selArrow);
     MenuTextBox<int> exitMenuBox(sf::Rect<int>(15, 26, 80, 0), selArrow);
 
-    dialogueBox.setOffset(2, 2);
-
+    dialogueBox.setOffset(5, 5);
+    dialogueBox.setLines(3);
     exitMenuBox.setParent(&menuBox);
 
     /* -- Menu contents -- */

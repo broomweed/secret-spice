@@ -9,7 +9,7 @@ class MenuTextBoxBase : public TextBox {
                 Animation selectorArrow_)
                 : TextBox(dimensions) {
             selectorArrow = selectorArrow_;
-            setOffset(selectorArrow.getLocalBounds().width + 2, 1);
+            setOffset(selectorArrow.getLocalBounds().width + 2, offset.y);
             setSelection(0);
             menuLength = 1;
             parent = NULL;
@@ -38,7 +38,8 @@ class MenuTextBoxBase : public TextBox {
 
         void cleanPos() {
             TextBox::cleanPos();
-            selectorArrow.setPosition(size.left + 1, size.top + getSelection() * (font.charHeight + 1) + 1);
+            selectorArrow.setPosition(size.left + 1,
+                    size.top + offset.y + getSelection() * (font.charHeight + 1));
         }
 
         int getSelection() {
@@ -55,7 +56,7 @@ class MenuTextBoxBase : public TextBox {
 
         void setLength(int items) {
             menuLength = items;
-            size.height = menuLength * font.charHeight + menuLength + 2*offset.y - 2;
+            setLines(items);
         }
 
         virtual void show() {

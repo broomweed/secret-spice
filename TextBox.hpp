@@ -22,7 +22,7 @@ class TextBox : public sf::Drawable {
             hidden = true;
             size = dimensions;
             initialSize = size;
-            offset = sf::Vector2f(1, 1);
+            offset = sf::Vector2f(5, 5);
             for (int i = 0; i < 8; i++) {
                 borderSecs.push_back(sf::Sprite());
             }
@@ -54,7 +54,7 @@ class TextBox : public sf::Drawable {
                     pxWidth += font.widths[font.decoder.find_first_of(nextWord[i], 0)];
                 }
 
-                if (nextX + pxWidth > size.width - offset.x) {
+                if (nextX + pxWidth > size.width - 2 * offset.x) {
                     /* if next word doesn't fit on the line, go to the next line */
                     nextX = 0;
                     nextY += font.charHeight + 1;
@@ -154,6 +154,10 @@ class TextBox : public sf::Drawable {
             size.width = w;
             size.height = h;
             dirtyPos = true;
+        }
+
+        void setLines(int numLines) {
+            size.height = numLines * (font.charHeight + 1) + 2 * offset.y - font.descenderHeight - 1;
         }
 
         sf::Rect<int> getSizeRect() {
