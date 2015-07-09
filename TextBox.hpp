@@ -31,7 +31,6 @@ class TextBox : public sf::Drawable {
         }
 
         void setText(std::string string) {
-            //string.append("\n");
             letters.resize(string.length() * 4);
             letters.setPrimitiveType(sf::Quads);
             int nextX = 0;

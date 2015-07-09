@@ -10,7 +10,6 @@ class TypewriterTextBox : public TextBox {
             speed = lettersPerSecond;
             lineFinished = false;
             totalTime = sf::Time::Zero;
-            scrollAmount = 0;
         }
 
         void setText(std::string string) {
@@ -85,7 +84,6 @@ class TypewriterTextBox : public TextBox {
         // only the letters that are displayed
         sf::VertexArray dispLetters;
         float speed;
-        int scrollAmount;
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
             if (!hidden) {
