@@ -65,6 +65,19 @@ int main(int argc, char **argv) {
 
     /* -- Setting up textboxes -- */
 
+    int charWidths[68] =
+       //A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+        {7,6,6,6,5,5,6,6,2,5,6,5,8,6,6,6,6,6,6,6,6,7,8,6,6,5,
+       //a b c d e f g h i j k l m n o p q r s t u v w x y z
+         5,5,5,5,5,4,5,5,2,3,5,2,8,5,5,5,5,4,5,4,5,6,8,5,5,5,
+       //0 1 2 3 4 5 6 7 8 9 . , ! ? ' space
+         5,3,5,5,6,5,5,5,5,5,2,3,2,5,3,2};
+
+    Font ebFont(string("images/ebfont.png"), 11, charWidths,
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?' ");
+
+    TextBox::setGlobalFont(ebFont);
+
     SpriteSheet contArrowSheet("images/more-line.png", 4, 1);
     Animation contArrow;
     contArrow.addFrame(contArrowSheet.getSprite(0,0), 290);
@@ -78,35 +91,24 @@ int main(int argc, char **argv) {
     Animation selArrow(selArrowSheet.getSprite(0,0));
 
     DialogueTextBox dialogueBox(sf::Rect<int>(100, 256, 202, 39), 18.0f, contArrow);
-    MenuTextBox<int> menuBox(sf::Rect<int>(5, 5, 80, 37), selArrow);
+    MenuTextBox<MenuTextBoxBase*> menuBox(sf::Rect<int>(5, 5, 80, 37), selArrow);
+    MenuTextBox<int> exitMenuBox(sf::Rect<int>(15, 15, 80, 0), selArrow);
 
-    int charWidths[68] =
-       //A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
-        {7,6,6,6,5,5,6,6,2,5,6,5,8,6,6,6,6,6,6,6,6,7,8,6,6,5,
-       //a b c d e f g h i j k l m n o p q r s t u v w x y z
-         5,5,5,5,5,4,5,5,2,3,5,2,8,5,5,5,5,4,5,4,5,6,8,5,5,5,
-       //0 1 2 3 4 5 6 7 8 9 . , ! ? ' space
-         5,3,5,5,6,5,5,5,5,5,2,3,2,5,3,2};
+    exitMenuBox.setParent(&menuBox);
 
-    if (!dialogueBox.setFont(string("images/ebfont.png"), 11, charWidths,
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?' ")) {
-        fprintf(stderr, "Something went wrong with the font!\n");
-        return -2;
-    }
-
-    if (!menuBox.setFont(string("images/ebfont.png"), 11, charWidths,
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?' ")) {
-        fprintf(stderr, "Something went wrong with the menu's font!\n");
-        return -2;
-    }
-
-    Menu<int> mainMenu;
-    mainMenu.addItem("Inventory", 0);
-    mainMenu.addItem("Status", 1);
-    mainMenu.addItem("Fashionability", 2);
+    Menu<MenuTextBoxBase*> mainMenu;
+    mainMenu.addItem("Inventory", &menuBox);
+    mainMenu.addItem("Status", &menuBox);
+    mainMenu.addItem("Fashionability", &menuBox);
+    mainMenu.addItem("Exit Demo", &exitMenuBox);
 
     menuBox.setMenu(mainMenu);
-    menuBox.setSelection(0);
+
+    Menu<int> exitMenu;
+    exitMenu.addItem("Exit Demo", 0);
+    exitMenu.addItem("Cancel", 1);
+
+    exitMenuBox.setMenu(exitMenu);
 
     MenuTextBoxBase *currentOpenMenu = NULL;
 
@@ -124,6 +126,7 @@ int main(int argc, char **argv) {
 
     menuBox.setBorderStyle(abBorder);
     dialogueBox.setBorderStyle(abBorder);
+    exitMenuBox.setBorderStyle(abBorder);
 
     dialogueBox.setOffset(2, 2);
 
@@ -230,11 +233,16 @@ int main(int argc, char **argv) {
                                 }
                             } else {
                                 /* MENU SELECTION HANDLING */
-                                if (currentOpenMenu) {
-                                    std::cout << "You selected item #" << currentOpenMenu->getSelection() << "!" << std::endl;
-                                    currentOpenMenu->hide();
-                                    currentOpenMenu = NULL;
-                                    sm.currentScene->setActive(true);
+                                if (currentOpenMenu == &menuBox) {
+                                    menuBox.getSelectedItem()->show();
+                                    currentOpenMenu = menuBox.getSelectedItem();
+                                } else if (currentOpenMenu == &exitMenuBox) {
+                                    if (exitMenuBox.getSelectedItem() == 0) {
+                                        window.close();
+                                    } else {
+                                        exitMenuBox.hide();
+                                        currentOpenMenu = exitMenuBox.getParent();
+                                    }
                                 }
                             }
                         } else {
@@ -247,20 +255,23 @@ int main(int argc, char **argv) {
                             }
                         }
                         break;
-                    case sf::Keyboard::Return:
-                        if (menuBox.hidden) {
-                            if (sm.currentScene->isActive()) {
-                                menuBox.show();
-                                currentOpenMenu = &menuBox;
-                                sm.currentScene->setActive(false);
-                            }
-                        }
-                        break;
                     case sf::Keyboard::Escape:
-                        if (currentOpenMenu) {
-                            currentOpenMenu->hide();
-                            sm.currentScene->setActive(true);
-                            currentOpenMenu = NULL;
+                        if (currentOpenMenu == NULL) {
+                            if (menuBox.hidden) {
+                                if (sm.currentScene->isActive()) {
+                                    menuBox.show();
+                                    currentOpenMenu = &menuBox;
+                                    sm.currentScene->setActive(false);
+                                }
+                            }
+                        } else {
+                            if (currentOpenMenu) {
+                                currentOpenMenu->hide();
+                                currentOpenMenu = currentOpenMenu->getParent();
+                                if (currentOpenMenu == NULL) {
+                                    sm.currentScene->setActive(true);
+                                }
+                            }
                         }
                         break;
                 }
@@ -382,6 +393,7 @@ int main(int argc, char **argv) {
         window.draw(scene2);
         window.draw(dialogueBox);
         window.draw(menuBox);
+        window.draw(exitMenuBox);
         window.display();
     }
 

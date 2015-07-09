@@ -5,6 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include "Menu.hpp"
 #include "BorderStyle.hpp"
+#include "Font.hpp"
 
 /* This is a text box. This textbox is nothing special. It
  * can change its font on command, though. It just displays text
@@ -26,6 +27,7 @@ class TextBox : public sf::Drawable {
             for (int i = 0; i < 8; i++) {
                 borderSecs.push_back(sf::Sprite());
             }
+            font = gfont;
         }
 
         void setText(std::string string) {
@@ -49,19 +51,19 @@ class TextBox : public sf::Drawable {
                 for (i = 0; i < nextWord.length(); i++) {
                     /* add up the widths of the individual letters in the word to find its width */
                     if (nextWord[i] == '\n') continue; // ignore newlines; they have no width
-                    pxWidth += widths[decoder.find_first_of(nextWord[i], 0)];
+                    pxWidth += font.widths[font.decoder.find_first_of(nextWord[i], 0)];
                 }
 
                 if (nextX + pxWidth > size.width - offset.x) {
                     /* if next word doesn't fit on the line, go to the next line */
                     nextX = 0;
-                    nextY += charHeight + 1;
+                    nextY += font.charHeight + 1;
                 }
 
                 for (i = 0; i < nextWord.length(); i++) {
                     if (nextWord[i] == '\n') {
                         nextX = 0;
-                        nextY += charHeight + 1;
+                        nextY += font.charHeight + 1;
                         /* hide the character representing the newline by setting it to (0,0) --
                          * otherwise it would output random junk into the textbox */
                         letters[totalChars+i*4].texCoords = sf::Vector2f(0, 0);
@@ -75,35 +77,35 @@ class TextBox : public sf::Drawable {
                         break;
                     }
 
-                    int texID = decoder.find_first_of(nextWord[i], 0);
+                    int texID = font.decoder.find_first_of(nextWord[i], 0);
 
                     if (texID < 0) {
                         std::cerr << "Character not in decoder string: " << nextWord[i] << std::endl;
                         continue;
                     }
 
-                    letters[totalChars+i*4].texCoords = texLocs[texID*4].texCoords;
-                    letters[totalChars+i*4+1].texCoords = texLocs[texID*4+1].texCoords;
-                    letters[totalChars+i*4+2].texCoords = texLocs[texID*4+2].texCoords;
-                    letters[totalChars+i*4+3].texCoords = texLocs[texID*4+3].texCoords;
+                    letters[totalChars+i*4].texCoords = font.texLocs[texID*4].texCoords;
+                    letters[totalChars+i*4+1].texCoords = font.texLocs[texID*4+1].texCoords;
+                    letters[totalChars+i*4+2].texCoords = font.texLocs[texID*4+2].texCoords;
+                    letters[totalChars+i*4+3].texCoords = font.texLocs[texID*4+3].texCoords;
 
                     letters[totalChars+i*4].position =
                             sf::Vector2f(offset.x + size.left + nextX,
                             offset.y + size.top + nextY);
 
                     letters[totalChars+i*4+1].position =
-                            sf::Vector2f(offset.x + size.left + nextX + widths[texID],
+                            sf::Vector2f(offset.x + size.left + nextX + font.widths[texID],
                             offset.y + size.top + nextY);
 
                     letters[totalChars+i*4+2].position =
-                            sf::Vector2f(offset.x + size.left + nextX + widths[texID],
-                            offset.y + size.top + nextY + charHeight);
+                            sf::Vector2f(offset.x + size.left + nextX + font.widths[texID],
+                            offset.y + size.top + nextY + font.charHeight);
 
                     letters[totalChars+i*4+3].position =
                             sf::Vector2f(offset.x + size.left + nextX,
-                            offset.y + size.top + nextY + charHeight);
+                            offset.y + size.top + nextY + font.charHeight);
 
-                    nextX += widths[texID];
+                    nextX += font.widths[texID];
                 }
 
                 totalChars += nextWord.length() * 4;
@@ -118,7 +120,7 @@ class TextBox : public sf::Drawable {
             hidden = true;
         }
 
-        void show() {
+        virtual void show() {
             if (dirtyPos) {
                 cleanPos();
             }
@@ -127,7 +129,7 @@ class TextBox : public sf::Drawable {
 
         virtual void cleanPos() {
             setText(text);
-            setBorderPosition();
+            updateBorderPosition();
         }
 
         void setPosition(sf::Vector2u pos) {
@@ -162,30 +164,6 @@ class TextBox : public sf::Drawable {
             return text;
         }
 
-        bool setFont(const std::string& filename,   // the font filename
-                int char_height,                    // height of characters
-                int* char_widths,                   // width of each character
-                const std::string& decoder_string){ // string with characters in order as image
-            if (!fontImage.loadFromFile(filename)) {
-                return false;
-            }
-            decoder = decoder_string; // it's like a decoder ring ;)
-            widths = char_widths;
-            charHeight = char_height;
-            texLocs.setPrimitiveType(sf::Quads);
-            texLocs.resize(decoder.length() * 4);
-            int totalWidth = 0;
-            for (int i = 0; i < decoder.length(); i++) {
-                texLocs[i*4].texCoords = sf::Vector2f(totalWidth, 0);
-                texLocs[i*4+1].texCoords = sf::Vector2f(totalWidth + char_widths[i], 0);
-                texLocs[i*4+2].texCoords = sf::Vector2f(totalWidth + char_widths[i], char_height);
-                texLocs[i*4+3].texCoords = sf::Vector2f(totalWidth, char_height);
-                totalWidth += char_widths[i];
-            }
-
-            return true;
-        }
-
         void setOffset(float x, float y) {
             setOffset(sf::Vector2f(x, y));
         }
@@ -196,10 +174,63 @@ class TextBox : public sf::Drawable {
 
         void setBorder(BorderStyle border_) {
             border = border_;
-            setBorderPosition();
+            updateBorderPosition();
         }
 
-        void setBorderPosition() {
+        void setBorderStyle(BorderStyle bs) {
+            border = bs;
+            for (int i = 0; i < bs.textures.size(); i++) {
+                borderSecs[i].setTexture(border.textures[i], true);
+            }
+            updateBorderPosition();
+        }
+
+        void setFont(Font font_) {
+            font = font_;
+        }
+
+        static void setGlobalFont(Font gfont_) {
+            gfont = gfont_;
+        }
+
+    protected:
+        std::string text;           // text to display
+        bool dirtyPos;              // has position/size been changed since it was last shown
+        sf::VertexArray letters;    // positions of letters on screen
+        sf::Rect<int> size;         // size/location of the text box
+        sf::Rect<int> initialSize;  // initial dimensions of text box
+        sf::Vector2f offset;        // the offset of the letters from the upper-left corner
+        Font font;                  // the font with which it shall be drawn
+        static Font gfont;          // the default ("global") font to be used
+        BorderStyle border;         // the style of border that will be drawn around the text box
+        std::vector<sf::Sprite> borderSecs; // the individual sprites representing components of the border
+
+        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
+            if (!hidden) {
+                // draw a background
+                sf::RectangleShape bg(sf::Vector2f(size.width, size.height));
+                bg.setPosition(sf::Vector2f(size.left, size.top));
+                bg.setFillColor(sf::Color(sf::Color::Black));
+                target.draw(bg, states);
+                // draw border
+                drawBorder(target, states);
+                // apply texture
+                states.texture = &font.image;
+                // draw vertex array
+                target.draw(letters, states);
+            }
+        }
+
+        virtual void drawBorder(sf::RenderTarget& target, sf::RenderStates states) const {
+            if (border.exists) {
+                // draw border
+                for (int i = 0; i < borderSecs.size(); i++) {
+                    target.draw(borderSecs[i], states);
+                }
+            }
+        }
+
+        void updateBorderPosition() {
             borderSecs[0].setPosition(size.left - borderSecs[0].getLocalBounds().width,
                     size.top - borderSecs[0].getLocalBounds().height);   // Upper left
             borderSecs[1].setPosition(size.left + size.width,
@@ -217,55 +248,9 @@ class TextBox : public sf::Drawable {
             borderSecs[7].setPosition(size.left + size.width, size.top);
             borderSecs[7].setScale(1.0f, (float)size.height / borderSecs[7].getLocalBounds().height);  // Right
         }
-
-        void setBorderStyle(BorderStyle bs) {
-            border = bs;
-            for (int i = 0; i < bs.textures.size(); i++) {
-                borderSecs[i].setTexture(border.textures[i], true);
-            }
-            std::cout << "border style set! exists? " << border.exists << std::endl;
-        }
-
-    protected:
-        std::string text;           // text to display
-        bool dirtyPos;              // has position/size been changed since it was last shown
-        sf::Texture fontImage;      // the letters of the font
-        sf::VertexArray texLocs;    // locations of font letter rectangles
-        sf::VertexArray letters;    // positions of letters on screen
-        sf::Rect<int> size;         // size/location of the text box
-        sf::Rect<int> initialSize;  // initial dimensions of text box
-        int* widths;                // the widths of each individual character
-        int charHeight;             // the height of every character
-        std::string decoder;        // the order of the characters within the texture
-        sf::Vector2f offset;        // the offset of the letters from the upper-left corner
-        BorderStyle border;         // the style of border that will be drawn around the text box
-        std::vector<sf::Sprite> borderSecs; // the individual sprites representing components of the border
-
-        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
-            if (!hidden) {
-                // draw a background
-                sf::RectangleShape bg(sf::Vector2f(size.width, size.height));
-                bg.setPosition(sf::Vector2f(size.left, size.top));
-                bg.setFillColor(sf::Color(sf::Color::Black));
-                target.draw(bg, states);
-                // draw border
-                drawBorder(target, states);
-                // apply texture
-                states.texture = &fontImage;
-                // draw vertex array
-                target.draw(letters, states);
-            }
-        }
-
-        virtual void drawBorder(sf::RenderTarget& target, sf::RenderStates states) const {
-            if (border.exists) {
-                // draw border
-                for (int i = 0; i < borderSecs.size(); i++) {
-                    target.draw(borderSecs[i], states);
-                }
-            }
-        }
 };
+
+Font TextBox::gfont; // ??? ??  ? c++?
 
 /* The TypewriterTextBox is nice because it displays text one letter at a time.
  * It takes a constructor parameter 'speed' which is the number of letters per
@@ -329,7 +314,7 @@ class TypewriterTextBox : public TextBox {
                 // draw border
                 drawBorder(target, states);
                 // apply the texture
-                states.texture = &fontImage;
+                states.texture = &font.image;
                 target.draw(dispLetters, states);
             }
         }
@@ -423,6 +408,7 @@ class MenuTextBoxBase : public TextBox {
             setOffset(selectorArrow.getLocalBounds().width + 2, 1);
             setSelection(0);
             menuLength = 1;
+            parent = NULL;
         }
 
         void setSelection(int i) {
@@ -448,17 +434,36 @@ class MenuTextBoxBase : public TextBox {
 
         void cleanPos() {
             TextBox::cleanPos();
-            selectorArrow.setPosition(size.left + 1, size.top + getSelection() * (charHeight + 1) + 1);
+            selectorArrow.setPosition(size.left + 1, size.top + getSelection() * (font.charHeight + 1) + 1);
         }
 
         int getSelection() {
             return selectionIndex;
         }
 
+        MenuTextBoxBase *getParent() {
+            return parent;
+        }
+
+        void setParent(MenuTextBoxBase *parent_) {
+            parent = parent_;
+        }
+
+        void setLength(int items) {
+            menuLength = items;
+            size.height = menuLength * font.charHeight + menuLength + 2*offset.y - 2;
+        }
+
+        virtual void show() {
+            TextBox::show();
+            setSelection(0);
+        }
+
     protected:
         Animation selectorArrow;
         int selectionIndex;
         int menuLength;
+        MenuTextBoxBase *parent;    // the menu that spawned it
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
             if (!hidden) {
@@ -482,7 +487,8 @@ class MenuTextBox : public MenuTextBoxBase {
                 textToSet += menu.getItemName(i) + "\n";
             }
             setText(textToSet);
-            menuLength = menu.items.size(); // now the base class knows about the length
+            setLength(menu.items.size()); // now the base class knows about the length
+            setSelection(0);
         }
 
         T getSelectedItem() {
