@@ -9,6 +9,8 @@ class TypewriterTextBox : public TextBox {
         TypewriterTextBox(sf::Rect<int> dimensions, float lettersPerSecond) : TextBox(dimensions) {
             speed = lettersPerSecond;
             lineFinished = false;
+            totalTime = sf::Time::Zero;
+            scrollAmount = 0;
         }
 
         void setText(std::string string) {
@@ -17,18 +19,30 @@ class TypewriterTextBox : public TextBox {
             lineFinished = false;
         }
 
-        void show() {
+        virtual void show() {
             TextBox::show();
             lineTime.restart();
             lineFinished = false;
         }
 
+        virtual void hide() {
+            TextBox::hide();
+            totalTime = sf::Time::Zero;
+        }
+
         bool lineFinished;
+
+        virtual void append(std::string string) {
+            TextBox::append(string);
+            lineTime.restart();
+            lineFinished = false;
+            update();
+        }
 
         void update() {
             if (!hidden && !lineFinished) {
                 // seconds * letters/sec = # letters (unit cancellation!)
-                int dispLineLength = (int)(lineTime.getElapsedTime().asSeconds() * speed);
+                int dispLineLength = (int)((totalTime + lineTime.getElapsedTime()).asSeconds() * speed);
                 if (dispLineLength <= text.length()) {
                     // (we have to multiply by 4 because there are 4 vertices per letter)
                     dispLetters.resize(dispLineLength * 4);
@@ -37,20 +51,41 @@ class TypewriterTextBox : public TextBox {
                     // this means we've already written out all the letters
                     dispLetters.resize(text.length() * 4);
                     lineFinished = true;
+                    totalTime += lineTime.getElapsedTime();
                 }
                 dispLetters.setPrimitiveType(sf::Quads);
                 // copy the ones that need to be displayed into the vertex array
                 for (int i = 0; i < dispLetters.getVertexCount(); i++) {
+                    if (i < letters.getVertexCount() - 4) { // is it not the last letter?
+                        while (letters[i+4].position.y > size.top + size.height + 1) {
+                            // if the next one would be out of the box, scroll up
+                            scrollUp();
+                        }
+                    }
                     dispLetters[i] = letters[i];
+                }
+            }
+        }
+
+        /* move all text up a line */
+        void scrollUp() {
+            for (int i = 0; i < letters.getVertexCount(); i++) {
+                if (letters[i].position.y > size.top + font.charHeight + offset.y) {
+                    letters[i].position.y -= font.charHeight + 1;
+                } else {
+                    letters[i].position.x = 0;
+                    letters[i].position.y = 0;
                 }
             }
         }
 
     protected:
         sf::Clock lineTime;
+        sf::Time totalTime;
         // only the letters that are displayed
         sf::VertexArray dispLetters;
         float speed;
+        int scrollAmount;
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
             if (!hidden) {
@@ -79,6 +114,7 @@ class DialogueTextBox : public TypewriterTextBox {
                 : TypewriterTextBox(dimensions, lettersPerSecond) {
             lines = lines_;
             continueArrow = continueArrow_;
+            alreadyHasText = false;
         }
 
         DialogueTextBox (sf::Rect<int> dimensions,
@@ -91,16 +127,27 @@ class DialogueTextBox : public TypewriterTextBox {
 
         void nextLine() {
             if (lines.hasMoreLines()) {
-                setText(lines.getNextLine());
+                if (alreadyHasText) {
+                    append("\n" + lines.getNextLine());
+                } else {
+                    setText(lines.getNextLine());
+                    alreadyHasText = true;
+                }
             } else {
                 hide();
             }
         }
 
         void show() {
+            alreadyHasText = false;
             TypewriterTextBox::show();
             lines.reset();
             nextLine();
+        }
+
+        void hide() {
+            TypewriterTextBox::hide();
+            setText("");
         }
 
         void setSize(int w, int h) {
@@ -133,6 +180,7 @@ class DialogueTextBox : public TypewriterTextBox {
         Dialogue lines;             // the lines this textbox contains
         Animation continueArrow;    // the little arrow that will show when there are more lines
         sf::Texture contTexture;    // the texture of the continue arrow
+        bool alreadyHasText;        // whether we should put a newline in front of the line to add
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
             if (!hidden) {

@@ -89,9 +89,8 @@ class MenuTextBox : public MenuTextBoxBase {
             menu = menu_;
             std::string textToSet = "";
             for (int i = 0; i < menu.names.size(); i++) {
-                textToSet += menu.getItemName(i) + "\n";
+                append(menu.getItemName(i) + "\n");
             }
-            setText(textToSet);
             setLength(menu.items.size()); // now the base class knows about the length
             setSelection(0);
         }

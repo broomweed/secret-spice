@@ -216,6 +216,9 @@ int main(int argc, char **argv) {
                         if (currentOpenMenu) {
                             currentOpenMenu->selectPrev();
                         }
+                        if (!dialogueBox.hidden) {
+                            dialogueBox.scrollUp();
+                        }
                         break;
                     case sf::Keyboard::Left:
                         arrows[1] = false;
