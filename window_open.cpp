@@ -399,6 +399,7 @@ int main(int argc, char **argv) {
 
         dialogueBox.updatePosition(cameraX, cameraY, SCRWIDTH/2, SCRHEIGHT/2);
         menuBox.updatePosition(cameraX, cameraY, SCRWIDTH/2, SCRHEIGHT/2);
+        exitMenuBox.updatePosition(cameraX, cameraY, SCRWIDTH/2, SCRHEIGHT/2);
 
         window.clear(sf::Color::Black);
         window.draw(scene);
