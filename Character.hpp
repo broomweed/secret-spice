@@ -27,7 +27,7 @@ class Character : public Thing {
             drawDepth = 0;
             boxLoc = boxLoc_;
             setPosition(position_);
-            setAnimationsFromSpriteSheet(ss);
+            setAnimationsFromSpriteSheet(ss, 220);
             direction = 0;
             animation_id = 0;
             Thing::setAnimation(anims[animation_id][direction]);
@@ -76,7 +76,7 @@ class Character : public Thing {
             setPosition(getPosition().x + dx, getPosition().y + dy);
         }
 
-        void setAnimationsFromSpriteSheet(SpriteSheet& ss) {
+        void setAnimationsFromSpriteSheet(SpriteSheet& ss, int frameLength) {
             std::vector<Animation> stand;
             std::vector<Animation> walk;
             for (int i = 0; i < 8; i++) {
@@ -84,8 +84,10 @@ class Character : public Thing {
             }
             for (int i = 0; i < 8; i++) {
                 Animation ani;
-                ani.addFrame(ss.getSprite(0, i), 250);
-                ani.addFrame(ss.getSprite(2, i), 250);
+                ani.addFrame(ss.getSprite(0, i), frameLength);
+                ani.addFrame(ss.getSprite(1, i), frameLength);
+                ani.addFrame(ss.getSprite(2, i), frameLength);
+                ani.addFrame(ss.getSprite(1, i), frameLength);
                 walk.push_back(ani);
             }
             std::vector<std::vector<Animation> > anims_;

@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
     SpriteSheet selArrowSheet("images/menu-selector.png", 1, 1);
     Animation selArrow(selArrowSheet.getSprite(0,0));
 
-    DialogueTextBox dialogueBox(sf::Rect<int>(100, 261, 200, 37), 18.0f, contArrow);
+    DialogueTextBox dialogueBox(sf::Rect<int>(100, 256, 202, 39), 18.0f, contArrow);
     MenuTextBox<int> menuBox(sf::Rect<int>(5, 5, 80, 37), selArrow);
 
     int charWidths[68] =
@@ -109,6 +109,23 @@ int main(int argc, char **argv) {
     menuBox.setSelection(0);
 
     MenuTextBoxBase *currentOpenMenu = NULL;
+
+    BorderStyle plainBorder;
+    if (!plainBorder.loadFromFile("images/borders")) {
+        std::cerr << "Couldn't load the text box borders! :(" << std::endl;
+        return -3;
+    }
+
+    BorderStyle abBorder;
+    if (!abBorder.loadFromFile("images/ab_borders")) {
+        std::cerr << "Couldn't load the text box borders! :(" << std::endl;
+        return -3;
+    }
+
+    menuBox.setBorderStyle(abBorder);
+    dialogueBox.setBorderStyle(abBorder);
+
+    dialogueBox.setOffset(2, 2);
 
     /* -- Textboxes set up -- */
 
@@ -237,10 +254,13 @@ int main(int argc, char **argv) {
                                 currentOpenMenu = &menuBox;
                                 sm.currentScene->setActive(false);
                             }
-                        } else {
-                            menuBox.hide();
-                            currentOpenMenu = NULL;
+                        }
+                        break;
+                    case sf::Keyboard::Escape:
+                        if (currentOpenMenu) {
+                            currentOpenMenu->hide();
                             sm.currentScene->setActive(true);
+                            currentOpenMenu = NULL;
                         }
                         break;
                 }

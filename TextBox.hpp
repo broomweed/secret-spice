@@ -4,6 +4,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "Menu.hpp"
+#include "BorderStyle.hpp"
 
 /* This is a text box. This textbox is nothing special. It
  * can change its font on command, though. It just displays text
@@ -21,6 +22,10 @@ class TextBox : public sf::Drawable {
             size = dimensions;
             initialSize = size;
             offset = sf::Vector2f(1, 1);
+            border = BorderStyle();
+            for (int i = 0; i < 8; i++) {
+                borderSecs.push_back(sf::Sprite());
+            }
         }
 
         void setText(std::string string) {
@@ -122,6 +127,7 @@ class TextBox : public sf::Drawable {
 
         virtual void cleanPos() {
             setText(text);
+            setBorderPosition();
         }
 
         void setPosition(sf::Vector2u pos) {
@@ -188,6 +194,38 @@ class TextBox : public sf::Drawable {
             offset = offset_;
         }
 
+        void setBorder(BorderStyle border_) {
+            border = border_;
+            setBorderPosition();
+        }
+
+        void setBorderPosition() {
+            borderSecs[0].setPosition(size.left - borderSecs[0].getLocalBounds().width,
+                    size.top - borderSecs[0].getLocalBounds().height);   // Upper left
+            borderSecs[1].setPosition(size.left + size.width,
+                    size.top - borderSecs[0].getLocalBounds().height);   // Upper right
+            borderSecs[2].setPosition(size.left - borderSecs[2].getLocalBounds().width,
+                    size.top + size.height);                             // Bottom left
+            borderSecs[3].setPosition(size.left + size.width,
+                    size.top + size.height);                             // Bottom right
+            borderSecs[4].setPosition(size.left, size.top - borderSecs[4].getLocalBounds().height);
+            borderSecs[4].setScale((float)size.width / borderSecs[4].getLocalBounds().width, 1.0f);    // Top
+            borderSecs[5].setPosition(size.left, size.top + size.height);
+            borderSecs[5].setScale((float)size.width / borderSecs[5].getLocalBounds().width, 1.0f);    // Bottom
+            borderSecs[6].setPosition(size.left - borderSecs[6].getLocalBounds().width, size.top);
+            borderSecs[6].setScale(1.0f, (float)size.height / borderSecs[6].getLocalBounds().height);  // Left
+            borderSecs[7].setPosition(size.left + size.width, size.top);
+            borderSecs[7].setScale(1.0f, (float)size.height / borderSecs[7].getLocalBounds().height);  // Right
+        }
+
+        void setBorderStyle(BorderStyle bs) {
+            border = bs;
+            for (int i = 0; i < bs.textures.size(); i++) {
+                borderSecs[i].setTexture(border.textures[i], true);
+            }
+            std::cout << "border style set! exists? " << border.exists << std::endl;
+        }
+
     protected:
         std::string text;           // text to display
         bool dirtyPos;              // has position/size been changed since it was last shown
@@ -200,6 +238,8 @@ class TextBox : public sf::Drawable {
         int charHeight;             // the height of every character
         std::string decoder;        // the order of the characters within the texture
         sf::Vector2f offset;        // the offset of the letters from the upper-left corner
+        BorderStyle border;         // the style of border that will be drawn around the text box
+        std::vector<sf::Sprite> borderSecs; // the individual sprites representing components of the border
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
             if (!hidden) {
@@ -208,10 +248,21 @@ class TextBox : public sf::Drawable {
                 bg.setPosition(sf::Vector2f(size.left, size.top));
                 bg.setFillColor(sf::Color(sf::Color::Black));
                 target.draw(bg, states);
+                // draw border
+                drawBorder(target, states);
                 // apply texture
                 states.texture = &fontImage;
                 // draw vertex array
                 target.draw(letters, states);
+            }
+        }
+
+        virtual void drawBorder(sf::RenderTarget& target, sf::RenderStates states) const {
+            if (border.exists) {
+                // draw border
+                for (int i = 0; i < borderSecs.size(); i++) {
+                    target.draw(borderSecs[i], states);
+                }
             }
         }
 };
@@ -275,6 +326,8 @@ class TypewriterTextBox : public TextBox {
                 bg.setPosition(sf::Vector2f(size.left - 1, size.top - 1));
                 bg.setFillColor(sf::Color(sf::Color::Black));
                 target.draw(bg, states);
+                // draw border
+                drawBorder(target, states);
                 // apply the texture
                 states.texture = &fontImage;
                 target.draw(dispLetters, states);
@@ -327,8 +380,8 @@ class DialogueTextBox : public TypewriterTextBox {
 
         void cleanPos() {
             TypewriterTextBox::cleanPos();
-            continueArrow.setPosition(size.left + size.width + offset.x - continueArrow.getLocalBounds().width - 1,
-                    size.top + size.height - continueArrow.getLocalBounds().height - 1);
+            continueArrow.setPosition(size.left + size.width - offset.x - continueArrow.getLocalBounds().width,
+                    size.top + size.height - continueArrow.getLocalBounds().height - offset.y);
         }
 
 
