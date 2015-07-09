@@ -23,10 +23,10 @@ class TextBox : public sf::Drawable {
             size = dimensions;
             initialSize = size;
             offset = sf::Vector2f(1, 1);
-            border = BorderStyle();
             for (int i = 0; i < 8; i++) {
                 borderSecs.push_back(sf::Sprite());
             }
+            setBorderStyle(gborder);
             font = gfont;
         }
 
@@ -172,17 +172,16 @@ class TextBox : public sf::Drawable {
             offset = offset_;
         }
 
-        void setBorder(BorderStyle border_) {
-            border = border_;
-            updateBorderPosition();
-        }
-
         void setBorderStyle(BorderStyle bs) {
             border = bs;
             for (int i = 0; i < bs.textures.size(); i++) {
                 borderSecs[i].setTexture(border.textures[i], true);
             }
             updateBorderPosition();
+        }
+
+        static void setGlobalBorderStyle(BorderStyle gborder_) {
+            gborder = gborder_;
         }
 
         void setFont(Font font_) {
@@ -203,6 +202,7 @@ class TextBox : public sf::Drawable {
         Font font;                  // the font with which it shall be drawn
         static Font gfont;          // the default ("global") font to be used
         BorderStyle border;         // the style of border that will be drawn around the text box
+        static BorderStyle gborder; // the global border style for all (newly-created) windows
         std::vector<sf::Sprite> borderSecs; // the individual sprites representing components of the border
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -251,5 +251,6 @@ class TextBox : public sf::Drawable {
 };
 
 Font TextBox::gfont; // ??? ??  ? c++?
+BorderStyle TextBox::gborder;
 
 #endif // SPICE_TEXTBOX_HPP

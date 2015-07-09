@@ -65,7 +65,9 @@ int main(int argc, char **argv) {
 
     SceneManager sm(&scene);
 
-    /* -- Setting up textboxes -- */
+    /* == Setting up textboxes == */
+
+    /* -- Global styling -- */
 
     int charWidths[68] =
        //A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
@@ -80,6 +82,22 @@ int main(int argc, char **argv) {
 
     TextBox::setGlobalFont(ebFont);
 
+    BorderStyle plainBorder;
+    if (!plainBorder.loadFromFile("images/borders")) {
+        std::cerr << "Couldn't load the text box borders! :(" << std::endl;
+        return -3;
+    }
+
+    BorderStyle abBorder;
+    if (!abBorder.loadFromFile("images/ab_borders")) {
+        std::cerr << "Couldn't load the text box borders! :(" << std::endl;
+        return -3;
+    }
+
+    TextBox::setGlobalBorderStyle(abBorder);
+
+    /* -- Animations -- */
+
     SpriteSheet contArrowSheet("images/more-line.png", 4, 1);
     Animation contArrow;
     contArrow.addFrame(contArrowSheet.getSprite(0,0), 290);
@@ -92,11 +110,17 @@ int main(int argc, char **argv) {
     SpriteSheet selArrowSheet("images/menu-selector.png", 1, 1);
     Animation selArrow(selArrowSheet.getSprite(0,0));
 
+    /* -- Actual box initialization -- */
+
     DialogueTextBox dialogueBox(sf::Rect<int>(100, 256, 202, 39), 18.0f, contArrow);
     MenuTextBox<MenuTextBoxBase*> menuBox(sf::Rect<int>(5, 5, 80, 37), selArrow);
-    MenuTextBox<int> exitMenuBox(sf::Rect<int>(15, 15, 80, 0), selArrow);
+    MenuTextBox<int> exitMenuBox(sf::Rect<int>(15, 26, 80, 0), selArrow);
+
+    dialogueBox.setOffset(2, 2);
 
     exitMenuBox.setParent(&menuBox);
+
+    /* -- Menu contents -- */
 
     Menu<MenuTextBoxBase*> mainMenu;
     mainMenu.addItem("Inventory", &menuBox);
@@ -113,24 +137,6 @@ int main(int argc, char **argv) {
     exitMenuBox.setMenu(exitMenu);
 
     MenuTextBoxBase *currentOpenMenu = NULL;
-
-    BorderStyle plainBorder;
-    if (!plainBorder.loadFromFile("images/borders")) {
-        std::cerr << "Couldn't load the text box borders! :(" << std::endl;
-        return -3;
-    }
-
-    BorderStyle abBorder;
-    if (!abBorder.loadFromFile("images/ab_borders")) {
-        std::cerr << "Couldn't load the text box borders! :(" << std::endl;
-        return -3;
-    }
-
-    menuBox.setBorderStyle(abBorder);
-    dialogueBox.setBorderStyle(abBorder);
-    exitMenuBox.setBorderStyle(abBorder);
-
-    dialogueBox.setOffset(2, 2);
 
     /* -- Textboxes set up -- */
 
