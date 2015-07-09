@@ -5,7 +5,7 @@ class Font {
     public:
         Font() { }
 
-        Font(const std::string& filename,   // the font filename
+        Font(const std::string& filename,           // the font filename
                 int char_height,                    // height of characters
                 int* char_widths,                   // width of each character
                 const std::string& decoder_string){ // string with characters in order as image

@@ -13,6 +13,8 @@
 #include "Door.hpp"
 #include "Dialogue.hpp"
 #include "TextBox.hpp"
+#include "DialogueTextBox.hpp"
+#include "MenuTextBox.hpp"
 #include "SpriteSheet.hpp"
 #define SCRWIDTH 800
 #define SCRHEIGHT 600
