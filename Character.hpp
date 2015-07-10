@@ -67,7 +67,12 @@ class Character : public Thing {
                     direction = 2;
                 }
             }
-            if (old_animation_id != animation_id || old_direction != direction) {
+
+            if (old_animation_id != animation_id) {
+                Thing::setAnimation(anims[animation_id][direction]);
+            }
+
+            if(old_direction != direction) {
                 Thing::setAnimation(anims[animation_id][direction]);
             }
         }
@@ -116,4 +121,5 @@ class Character : public Thing {
         int animation_id;
         int direction;
         std::vector<std::vector<Animation> > anims;
+        Scene *currentScene;
 };

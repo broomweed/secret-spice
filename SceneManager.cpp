@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdio>
-#include "SceneManager.hpp"
 #include "Scene.hpp"
+#include "SceneManager.hpp"
 
 SceneManager::SceneManager(Scene* scene) {
     currentScene = NULL;

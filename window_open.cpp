@@ -1,7 +1,7 @@
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 #include <windows.h>
-#define debug
 #endif
+#define debug
 #include <iostream>
 #include <cstdio>
 #include <SFML/Graphics.hpp>
@@ -10,7 +10,6 @@
 #include "Character.hpp"
 #include "Building.hpp"
 #include "SceneManager.hpp"
-#include "Scene.hpp"
 #include "Door.hpp"
 #include "Dialogue.hpp"
 #include "TextBox.hpp"
@@ -290,6 +289,13 @@ int main(int argc, char **argv) {
                             }
                         }
                         break;
+#ifdef debug
+                    case sf::Keyboard::P:
+                        std::cout << "Main character's X coordinate: "
+                            << sm.currentScene->getMC()->getPosition().x << std::endl;
+                        std::cout << "Main character's Y coordinate: "
+                            << sm.currentScene->getMC()->getPosition().y << std::endl;
+#endif
                 }
             }
 
