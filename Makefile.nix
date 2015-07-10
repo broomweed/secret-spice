@@ -4,7 +4,7 @@ CFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
 window_open: window_open.o
 	$(CC) window_open.o SceneManager.o -g -o window_open $(CFLAGS)
 
-window_open.o: window_open.cpp TextBox.hpp MenuTextBox.hpp DialogueTextBox.hpp TileMap.hpp GameObject.hpp Scene.hpp Animation.hpp SpriteSheet.hpp Character.hpp Thing.hpp Door.hpp Dialogue.hpp SceneManager.o BorderStyle.hpp Font.hpp
+window_open.o: window_open.cpp TextBox.hpp MenuTextBox.hpp DialogueTextBox.hpp TileMap.hpp GameObject.hpp Scene.hpp Animation.hpp SpriteSheet.hpp Character.hpp Thing.hpp Door.hpp Dialogue.hpp SceneManager.o BorderStyle.hpp Font.hpp Building.hpp
 	$(CC) -g -c window_open.cpp $(CFLAGS)
 
 SceneManager.o: SceneManager.cpp SceneManager.hpp

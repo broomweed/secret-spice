@@ -16,15 +16,15 @@ class Thing : public sf::Drawable {
             targetDir = 0;
         }
 
-        bool hitTest(sf::Vector2f point) const {
+        virtual bool hitTest(sf::Vector2f point) const {
             return absLoc.contains(point);
         }
 
-        bool hitTest(Thing obj) const {
+        virtual bool hitTest(Thing obj) const {
             return absLoc.intersects(obj.absLoc);
         }
 
-        bool hitTest(sf::Rect<float> rect) const {
+        virtual bool hitTest(sf::Rect<float> rect) const {
             return absLoc.intersects(rect);
         }
 

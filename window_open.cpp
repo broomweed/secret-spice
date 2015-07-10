@@ -8,6 +8,7 @@
 #include "Thing.hpp"
 #include "GameObject.hpp"
 #include "Character.hpp"
+#include "Building.hpp"
 #include "SceneManager.hpp"
 #include "Scene.hpp"
 #include "Door.hpp"
@@ -177,7 +178,10 @@ int main(int argc, char **argv) {
     scene.add_static(&tree, sf::Vector2f(38, 218));
     scene.add_static(&tree, sf::Vector2f(358, 298));
 
+    Building post_office("images/tests/postoffice.png", sf::Vector2f(140, 120), sf::Rect<float>(0, 86, 188, 16));
+
     scene2.add_static(&tree, sf::Vector2f(198, 170));
+    scene2.add(&post_office);
     scene2.setName("the barren desert");
 
     Door door(&scene2, sf::Rect<float>(198, 182, 20, 20), sf::Vector2f(16, 16), 0);
