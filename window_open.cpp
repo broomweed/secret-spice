@@ -147,7 +147,12 @@ int main(int argc, char **argv) {
     bool arrows[4] = { false, false, false, false };
 
     SpriteSheet dan("images/dan.png", 3, 8);
-    Character guy(dan, sf::Vector2f(0, 16), sf::Rect<float>(5, 24, 14, 8));
+    Character guy(dan, sf::Vector2f(16, 32), sf::Rect<float>(5, 24, 14, 8));
+    Character guy2(dan, sf::Vector2f(0, 16), sf::Rect<float>(5, 24, 14, 8));
+
+    guy.tangible = false;
+    guy2.tangible = false;
+    guy2.follow(guy);
 
     Dialogue npc1Dia;
     npc1Dia.addLine("My name is Robert Alexandrius Dominus III, but you can probably just call me Rob. That's what my friends call me, anyway.");
@@ -164,6 +169,7 @@ int main(int argc, char **argv) {
     npc2.setText(npc2Dia);
 
     scene.add(&guy);
+    scene.add(&guy2);
     scene.add(&npc1);
     scene.add(&npc2);
     scene.setMC(&guy);

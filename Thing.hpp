@@ -14,7 +14,13 @@ class Thing : public sf::Drawable {
             active = true;
             stopMoving();
             targetDir = 0;
+            tangible = true;
         }
+
+        // Stuff to handle party-member following:
+        bool tangible;
+        bool shouldMoveX;
+        bool shouldMoveY; // these represent whether it's being blocked in the x/y direction
 
         virtual bool hitTest(sf::Vector2f point) const {
             return absLoc.contains(point);
@@ -145,17 +151,14 @@ class Thing : public sf::Drawable {
 
         sf::Rect<float> boxLoc; // the size and local-coordinates of the bounding
                                 // box in relation to the drawn animation
-
         Thing *checked;         // this is actually only used by Character, because
                                 // the GameObjects never check each other
-
         class Scene *parent;    // the scene it lives in
 
         bool is_copy;           // does the Scene need to take care of its cleanup?
 
         bool active;            // will it be checked for hittesting? (set to false
                                 // if touching it when entering a map)
-
         int targetDir;
 
    protected:

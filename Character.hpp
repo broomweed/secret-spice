@@ -1,4 +1,7 @@
+#include <queue>
+#include "Scene.hpp"
 #include "SpriteSheet.hpp"
+#include "Waypoint.hpp"
 
 class Character : public Thing {
     public:
@@ -13,6 +16,7 @@ class Character : public Thing {
             direction = 0;
             animation_id = 0;
             Thing::setAnimation(anims[animation_id][direction]);
+            follower = NULL;
            /* 5 4 3
                \|/
               6- -2
@@ -31,6 +35,7 @@ class Character : public Thing {
             direction = 0;
             animation_id = 0;
             Thing::setAnimation(anims[animation_id][direction]);
+            follower = NULL;
         }
 
         void move(sf::Vector2f dp) {
@@ -74,6 +79,7 @@ class Character : public Thing {
 
             if(old_direction != direction) {
                 Thing::setAnimation(anims[animation_id][direction]);
+                createWaypoint();
             }
         }
 
@@ -117,9 +123,71 @@ class Character : public Thing {
             Thing::setAnimation(anims[animation_id][direction]);
         }
 
+        std::queue<Waypoint> waypoints;
+        
+        virtual void update() {
+            Thing::update();
+            if (follower) {
+                sf::Vector2f target;
+                if (waypoints.size() > 0) {
+                    target = waypoints.front().position;
+                } else {
+                    target = getPosition();
+                }
+                if (getSpeed().x != 0.0f || getSpeed().y != 0.0f) {
+                    if (follower->getPosition().x < target.x - 0.5) {
+                        if (follower->getPosition().y < target.y - 0.5) {
+                            follower->setSpeed(0.71f, 0.71f);
+                        } else if (follower->getPosition().y > target.y + 0.5) {
+                            follower->setSpeed(0.71f, -0.71f);
+                        } else {
+                            follower->setSpeed(1, 0);
+                        }
+                    } else if (follower->getPosition().x > target.x + 0.5) {
+                        if (follower->getPosition().y < target.y - 0.5) {
+                            follower->setSpeed(-0.71f, 0.71f);
+                        } else if (follower->getPosition().y > target.y + 0.5) {
+                            follower->setSpeed(-0.71f, -0.71f);
+                        } else {
+                            follower->setSpeed(-1, 0);
+                        }
+                    } else {
+                        if (follower->getPosition().y < target.y - 0.5) {
+                            follower->setSpeed(0, 1);
+                        } else if (follower->getPosition().y > target.y + 0.5) {
+                            follower->setSpeed(0, -1);
+                        } else {
+                            if (follower->follower) {
+                                follower->waypoints.push(waypoints.front());
+                            }
+                            waypoints.pop();
+                        }
+                    }
+                    if (!shouldMoveX) {
+                        follower->setSpeed(0, follower->getSpeed().y);
+                    }
+                    if (!shouldMoveY) {
+                        follower->setSpeed(follower->getSpeed().x, 0);
+                    }
+                } else {
+                    follower->setSpeed(0, 0);
+                }
+            }
+        }
+
+        void createWaypoint() {
+            Waypoint wp = Waypoint(position, getSpeed());
+            waypoints.push(wp);
+        }
+
+        void follow(Character& charToFollow) {
+            charToFollow.follower = this;
+        }
+
     protected:
         int animation_id;
         int direction;
         std::vector<std::vector<Animation> > anims;
         Scene *currentScene;
+        Character *follower;
 };
