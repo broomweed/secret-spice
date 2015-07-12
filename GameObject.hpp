@@ -11,18 +11,17 @@ class GameObject : public Thing {
         GameObject(Animation anim_,
                 sf::Vector2f position_,
                 sf::Rect<float> boxLoc_)
-                    : Thing() {
+                    : Thing(boxLoc_) {
             drawDepth = 0;
             anim = anim_;
             position = position_;
-            boxLoc = boxLoc_;
             setPosition(position_);
         }
 
         GameObject(std::string filename,
                 sf::Vector2f position_,
                 sf::Rect<float> boxLoc_)
-                    : Thing() {
+                    : Thing(boxLoc_) {
             if(!tex.loadFromFile(filename)) {
                 std::cerr << "Error loading filename " << filename << std::endl;
             }
@@ -30,7 +29,6 @@ class GameObject : public Thing {
             anim = Animation();
             anim.addFrame(sf::Sprite(tex), 1000);
             position = position_;
-            boxLoc = boxLoc_;
             setPosition(position_);
         }
 

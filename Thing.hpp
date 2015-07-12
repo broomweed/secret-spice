@@ -9,14 +9,15 @@
    the other. Hence this class. */
 class Thing : public sf::Drawable {
     public:
-        Thing() {
-            text = Dialogue();
-            is_copy = false;
-            active = true;
+        Thing(sf::Rect<float> boxLoc_)
+            :   text(Dialogue()),
+                drawDepth(0),
+                boxLoc(boxLoc_),
+                is_copy(false),
+                active(true),
+                targetDir(0),
+                tangible(true) {
             stopMoving();
-            targetDir = 0;
-            tangible = true;
-            speed = sf::Vector2f(0.0f, 0.0f);
         }
 
         // Stuff to handle party-member following:

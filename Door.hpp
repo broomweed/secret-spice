@@ -11,9 +11,8 @@ class Door : public Thing {
                 sf::Rect<float> location,
                 sf::Vector2f destCoords_,
                 int targetDir_)
-                    : Thing() {
+                    : Thing(location) {
             destination = destination_;
-            boxLoc = location;
             absLoc = boxLoc;
             drawDepth = 0;
             destCoords = destCoords_;

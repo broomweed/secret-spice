@@ -9,16 +9,15 @@ class Character : public Thing {
         Character(std::vector<std::vector<Animation> > anims_,
                 sf::Vector2f position_,
                 sf::Rect<float> boxLoc_)
-                    : Thing() {
-            drawDepth = 0;
-            boxLoc = boxLoc_;
+                :   Thing(boxLoc_),
+                    anims(anims_),
+                    animation_id(0),
+                    direction(0),
+                    follower(NULL),
+                    partyLeader(false),
+                    pastSpeed(sf::Vector2f(0.0f, 0.0f)) {
             setPosition(position_);
-            anims = anims_;
-            direction = 0;
-            animation_id = 0;
             Thing::setAnimation(anims[animation_id][direction]);
-            follower = NULL;
-            pastSpeed = sf::Vector2f(0.0f, 0.0f);
            /* 5 4 3
                \|/
               6- -2
@@ -29,16 +28,15 @@ class Character : public Thing {
         Character(SpriteSheet& ss,
                 sf::Vector2f position_,
                 sf::Rect<float> boxLoc_)
-                    : Thing() {
-            drawDepth = 0;
-            boxLoc = boxLoc_;
+                :   Thing(boxLoc_),
+                    animation_id(0),
+                    direction(0),
+                    follower(NULL),
+                    partyLeader(false),
+                    pastSpeed(sf::Vector2f(0.0f, 0.0f)) {
             setPosition(position_);
             setAnimationsFromSpriteSheet(ss, 220);
-            direction = 0;
-            animation_id = 0;
             Thing::setAnimation(anims[animation_id][direction]);
-            follower = NULL;
-            pastSpeed = sf::Vector2f(0.0f, 0.0f);
         }
 
         void move(sf::Vector2f dp) {
@@ -123,8 +121,8 @@ class Character : public Thing {
             Thing::setAnimation(anims[animation_id][direction]);
         }
 
+        bool partyLeader;
         std::list<Waypoint> waypoints;
-
         sf::Vector2f pastSpeed;
 
         virtual void update() {
@@ -146,6 +144,9 @@ class Character : public Thing {
                             }
                             follower->pastSpeed = waypoints.front().speed;
                             follower->setSpeed(follower->pastSpeed);
+                            if (follower->follower) {
+                                follower->waypoints.push_back(waypoints.front());
+                            }
                             waypoints.pop_front();
                             if (waypoints.empty()) break;
                             dist = waypoints.front().position - follower->getPosition();
