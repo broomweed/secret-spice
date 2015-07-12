@@ -3,7 +3,6 @@
 #include "Scene.hpp"
 #include "SpriteSheet.hpp"
 #include "Waypoint.hpp"
-#include <sstream> // TODO remove
 
 class Character : public Thing {
     public:
