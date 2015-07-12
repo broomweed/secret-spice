@@ -127,28 +127,28 @@ void Scene::move_sprite(Thing& obj, float hmove, float vmove) {
     objs[index]->turn(hmove, vmove);
     if (hmove != 0.0f || vmove != 0.0f) {
         objs[index]->checked = NULL;
-        objs[index]->shouldMoveX = true;
-        objs[index]->shouldMoveY = true;
         /* Check if object is touching other objects; if it is, don't move it */
         for (int i = 0; i < objs.size(); i++) {
             if (i == index) continue; // obviously it's always touching itself
-            if (objs[i]->hitTest(sf::Rect<float>(objs[index]->absLoc.left + objs[index]->getSpeed().x,
+            if (objs[i]->hitTest(sf::Rect<float>(objs[index]->absLoc.left + hmove,
                             objs[index]->absLoc.top, objs[index]->absLoc.width, objs[index]->absLoc.height))) {
                 if (objs[i]->active && objs[i]->tangible) {
+                    /*std::cout << "Setting xspeed to 0." << std::endl;
+                    objs[index]->setSpeed(sf::Vector2f(objs[index]->getSpeed().x, 0.0f));*/
                     hmove = 0.0f;
                     objs[index]->checked = objs[i];
                     objs[i]->onTouch();
-                    objs[index]->shouldMoveX = false;
                 }
             }
             if (objs[i]->hitTest(sf::Rect<float>(objs[index]->absLoc.left,
-                            objs[index]->absLoc.top + objs[index]->getSpeed().y,
+                            objs[index]->absLoc.top + vmove,
                             objs[index]->absLoc.width, objs[index]->absLoc.height))) {
                 if (objs[i]->active && objs[i]->tangible) {
+                    /*std::cout << "Setting yspeed to 0." << std::endl;
+                    objs[index]->setSpeed(sf::Vector2f(0.0f, objs[index]->getSpeed().y));*/
                     vmove = 0.0f;
                     objs[index]->checked = objs[i];
                     objs[i]->onTouch();
-                    objs[index]->shouldMoveY = false;
                 }
             }
         }

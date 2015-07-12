@@ -1,7 +1,9 @@
-#include <queue>
+#include <list>
+#include <math.h> // sqrt
 #include "Scene.hpp"
 #include "SpriteSheet.hpp"
 #include "Waypoint.hpp"
+#include <sstream> // TODO remove
 
 class Character : public Thing {
     public:
@@ -17,6 +19,7 @@ class Character : public Thing {
             animation_id = 0;
             Thing::setAnimation(anims[animation_id][direction]);
             follower = NULL;
+            pastSpeed = sf::Vector2f(0.0f, 0.0f);
            /* 5 4 3
                \|/
               6- -2
@@ -36,6 +39,7 @@ class Character : public Thing {
             animation_id = 0;
             Thing::setAnimation(anims[animation_id][direction]);
             follower = NULL;
+            pastSpeed = sf::Vector2f(0.0f, 0.0f);
         }
 
         void move(sf::Vector2f dp) {
@@ -73,13 +77,11 @@ class Character : public Thing {
                 }
             }
 
-            if (old_animation_id != animation_id) {
+            if (old_animation_id != animation_id || old_direction != direction) {
                 Thing::setAnimation(anims[animation_id][direction]);
-            }
-
-            if(old_direction != direction) {
-                Thing::setAnimation(anims[animation_id][direction]);
-                createWaypoint();
+                if (animation_id != 0 && follower) {
+                    createWaypoint(); // no waypoints for stopping moving
+                }
             }
         }
 
@@ -108,8 +110,7 @@ class Character : public Thing {
         }
 
         void stopMoving() {
-            xspeed = 0;
-            yspeed = 0;
+            Thing::stopMoving();
             turn(0.0f, 0.0f);
             move(0.0f, 0.0f);
         }
@@ -123,65 +124,86 @@ class Character : public Thing {
             Thing::setAnimation(anims[animation_id][direction]);
         }
 
-        std::queue<Waypoint> waypoints;
-        
+        std::list<Waypoint> waypoints;
+
+        sf::Vector2f pastSpeed;
+
         virtual void update() {
             Thing::update();
             if (follower) {
-                sf::Vector2f target;
-                if (waypoints.size() > 0) {
-                    target = waypoints.front().position;
-                } else {
-                    target = getPosition();
-                }
-                if (getSpeed().x != 0.0f || getSpeed().y != 0.0f) {
-                    if (follower->getPosition().x < target.x - 0.5) {
-                        if (follower->getPosition().y < target.y - 0.5) {
-                            follower->setSpeed(0.71f, 0.71f);
-                        } else if (follower->getPosition().y > target.y + 0.5) {
-                            follower->setSpeed(0.71f, -0.71f);
-                        } else {
-                            follower->setSpeed(1, 0);
-                        }
-                    } else if (follower->getPosition().x > target.x + 0.5) {
-                        if (follower->getPosition().y < target.y - 0.5) {
-                            follower->setSpeed(-0.71f, 0.71f);
-                        } else if (follower->getPosition().y > target.y + 0.5) {
-                            follower->setSpeed(-0.71f, -0.71f);
-                        } else {
-                            follower->setSpeed(-1, 0);
-                        }
-                    } else {
-                        if (follower->getPosition().y < target.y - 0.5) {
-                            follower->setSpeed(0, 1);
-                        } else if (follower->getPosition().y > target.y + 0.5) {
-                            follower->setSpeed(0, -1);
-                        } else {
-                            if (follower->follower) {
-                                follower->waypoints.push(waypoints.front());
+                if (speed.x != 0.0f || speed.y != 0.0f) {
+                    if (!waypoints.empty()) { // don't set it to something random if no waypoints
+                        sf::Vector2f dist = waypoints.front().position - follower->getPosition();
+                        int dp = follower->pastSpeed.x * dist.x + follower->pastSpeed.y * dist.y;
+                        while (dp <= 0) {
+                            /* this is dot product: if it's 0 or negative, the follower is
+                             * on top of the waypoint or went past the waypoint, so put it
+                             * back and change its speed, and hand the waypoint along in
+                             * case there's someone else following the follower */
+                            if (dp <= -dist.x) {
+                                /* if error very large, put him back in position, but otherwise
+                                 * leave him on his own because this can introduce lag */
+                                follower->setPosition(waypoints.front().position);
                             }
-                            waypoints.pop();
+                            follower->pastSpeed = waypoints.front().speed;
+                            follower->setSpeed(follower->pastSpeed);
+                            if (follower->follower) {
+                                follower->waypoints.push_back(waypoints.front());
+                            }
+                            waypoints.pop_front();
+                            if (waypoints.empty()) break;
+                            dist = waypoints.front().position - follower->getPosition();
+                            dp = follower->pastSpeed.x * dist.x + follower->pastSpeed.y * dist.y;
                         }
                     }
-                    if (!shouldMoveX) {
-                        follower->setSpeed(0, follower->getSpeed().y);
-                    }
-                    if (!shouldMoveY) {
-                        follower->setSpeed(follower->getSpeed().x, 0);
-                    }
+                }
+                if (getFollowDistance() >= 16.0f) {
+                    follower->setSpeed(follower->pastSpeed);
                 } else {
-                    follower->setSpeed(0, 0);
+                    if (follower->getSpeed() != sf::Vector2f(0.0f, 0.0f)) {
+                        follower->pastSpeed = follower->getSpeed();
+                        follower->setSpeed(0.0f, 0.0f);
+                    }
                 }
             }
         }
 
         void createWaypoint() {
             Waypoint wp = Waypoint(position, getSpeed());
-            waypoints.push(wp);
+            waypoints.push_back(wp);
         }
 
         void follow(Character& charToFollow) {
             charToFollow.follower = this;
+        }
+
+        float getFollowDistance() {
+            float xdist = 0.0f, ydist = 0.0f;
+            float total = 0.0f;
+            if (follower) {
+                if (waypoints.empty()) {
+                    // just the distance between you and the follower
+                    xdist = follower->getPosition().x - position.x;
+                    ydist = follower->getPosition().y - position.y;
+                    total += sqrt(xdist * xdist + ydist * ydist);
+                } else {
+                    // add up the total distance between all your waypoints, plus the distance
+                    // from you to the most recent one and from the least recent one to the follower
+                    xdist = follower->getPosition().x - waypoints.front().position.x;
+                    ydist = follower->getPosition().y - waypoints.front().position.y;
+                    total += sqrt(xdist * xdist + ydist * ydist);
+                    for (std::list<Waypoint>::iterator wp = waypoints.begin(); wp != waypoints.end(); wp++) { // jeez, c++
+                        if (std::next(wp) == waypoints.end()) break;
+                        xdist = wp->position.x - std::next(wp)->position.x; // this is why we have to use c++11
+                        ydist = wp->position.y - std::next(wp)->position.y;
+                        total += sqrt(xdist * xdist + ydist * ydist);
+                    }
+                    xdist = position.x - waypoints.back().position.x;
+                    ydist = position.y - waypoints.back().position.y;
+                    total += sqrt(xdist * xdist + ydist * ydist);
+                }
+            }
+            return total;
         }
 
     protected:

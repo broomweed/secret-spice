@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-lsfml-graphics -lsfml-window -lsfml-system -L"C:/Program Files (x86)/SFML/lib" -I"C:\\Program Files (x86)\\SFML\\include"
+CFLAGS=-lsfml-graphics -lsfml-window -lsfml-system -std=c++11 -L"C:/Program Files (x86)/SFML/lib" -I"C:\\Program Files (x86)\\SFML\\include"
 
 window_open: window_open.o Scene.o SceneManager.o
 	$(CC) window_open.o Scene.o SceneManager.o -g -o window_open.exe $(CFLAGS)

@@ -15,12 +15,11 @@ class Thing : public sf::Drawable {
             stopMoving();
             targetDir = 0;
             tangible = true;
+            speed = sf::Vector2f(0.0f, 0.0f);
         }
 
         // Stuff to handle party-member following:
         bool tangible;
-        bool shouldMoveX;
-        bool shouldMoveY; // these represent whether it's being blocked in the x/y direction
 
         virtual bool hitTest(sf::Vector2f point) const {
             return absLoc.contains(point);
@@ -82,17 +81,19 @@ class Thing : public sf::Drawable {
                                 // box in relation to global coordinates
 
         void setSpeed(float dx, float dy) {
-            xspeed = dx;
-            yspeed = dy;
+            speed = sf::Vector2f(dx, dy);
+        }
+
+        void setSpeed(sf::Vector2f speed_) {
+            speed = speed_;
         }
 
         sf::Vector2f getSpeed() {
-            return sf::Vector2f(xspeed, yspeed);
+            return speed;
         }
 
         virtual void stopMoving() {
-            xspeed = 0;
-            yspeed = 0;
+            speed = sf::Vector2f(0.0f, 0.0f);
         }
 
         /* things used for some subclasses but not others */
@@ -164,8 +165,7 @@ class Thing : public sf::Drawable {
    protected:
         sf::Vector2f position;  // the offset of the corner of the bounding box's location
         Animation anim;         // the animation that it will be drawn with
-        float xspeed;
-        float yspeed;
+        sf::Vector2f speed;
         Dialogue text;
 
         virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {

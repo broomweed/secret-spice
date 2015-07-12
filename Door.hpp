@@ -15,8 +15,6 @@ class Door : public Thing {
             destination = destination_;
             boxLoc = location;
             absLoc = boxLoc;
-            xspeed = 0;
-            yspeed = 0;
             drawDepth = 0;
             destCoords = destCoords_;
             targetDir = targetDir_;

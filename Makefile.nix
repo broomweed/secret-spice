@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-lsfml-graphics -lsfml-window -lsfml-system
+CFLAGS=-lsfml-graphics -lsfml-window -lsfml-system -std=c++11
 
 window_open: window_open.o
 	$(CC) window_open.o SceneManager.o -g -o window_open $(CFLAGS)
