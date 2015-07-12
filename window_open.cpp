@@ -147,8 +147,9 @@ int main(int argc, char **argv) {
     bool arrows[4] = { false, false, false, false };
 
     SpriteSheet dan("images/dan.png", 3, 8);
+    SpriteSheet kat("images/katherine.png", 3, 8);
     Character guy(dan, sf::Vector2f(16, 32), sf::Rect<float>(5, 24, 14, 8));
-    Character guy2(dan, sf::Vector2f(16, 32), sf::Rect<float>(5, 24, 14, 8));
+    Character guy2(kat, sf::Vector2f(16, 32), sf::Rect<float>(5, 24, 14, 8));
 
     guy.tangible = false;
     guy2.tangible = false;

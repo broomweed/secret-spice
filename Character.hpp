@@ -139,7 +139,7 @@ class Character : public Thing {
                              * on top of the waypoint or went past the waypoint, so put it
                              * back and change its speed, and hand the waypoint along in
                              * case there's someone else following the follower */
-                            if (dp <= -dist.x) {
+                            if (dp <= -1) {
                                 /* if error very large, put him back in position, but otherwise
                                  * leave him on his own because this can introduce lag */
                                 follower->setPosition(waypoints.front().position);
@@ -156,7 +156,7 @@ class Character : public Thing {
                         }
                     }
                 }
-                if (getFollowDistance() >= 16.0f) {
+                if (getFollowDistance() >= 18.0f) {
                     follower->setSpeed(follower->pastSpeed);
                 } else {
                     if (follower->getSpeed() != sf::Vector2f(0.0f, 0.0f)) {
