@@ -150,10 +150,13 @@ int main(int argc, char **argv) {
     SpriteSheet kat("images/katherine.png", 3, 8);
     Character guy(dan, sf::Vector2f(16, 32), sf::Rect<float>(5, 24, 14, 8));
     Character guy2(kat, sf::Vector2f(16, 32), sf::Rect<float>(5, 24, 14, 8));
+    Character guy3(dan, sf::Vector2f(16, 32), sf::Rect<float>(5, 24, 14, 8));
 
     guy.tangible = false;
     guy2.tangible = false;
+    guy3.tangible = false;
     guy2.follow(guy);
+    guy3.follow(guy2);
 
     Dialogue npc1Dia;
     npc1Dia.addLine("My name is Robert Alexandrius Dominus III, but you can probably just call me Rob. That's what my friends call me, anyway.");
@@ -171,6 +174,7 @@ int main(int argc, char **argv) {
 
     scene.add(&guy);
     scene.add(&guy2);
+    scene.add(&guy3);
     scene.add(&npc1);
     scene.add(&npc2);
     scene.setMC(&guy);

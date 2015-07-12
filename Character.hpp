@@ -131,7 +131,7 @@ class Character : public Thing {
             Thing::update();
             if (follower) {
                 if (speed.x != 0.0f || speed.y != 0.0f) {
-                    if (!waypoints.empty()) { // don't set it to something random if no waypoints
+                    if (!waypoints.empty()) { // don't do something random if no waypoints
                         sf::Vector2f dist = waypoints.front().position - follower->getPosition();
                         int dp = follower->pastSpeed.x * dist.x + follower->pastSpeed.y * dist.y;
                         while (dp <= 0) {
@@ -139,16 +139,13 @@ class Character : public Thing {
                              * on top of the waypoint or went past the waypoint, so put it
                              * back and change its speed, and hand the waypoint along in
                              * case there's someone else following the follower */
-                            if (dp <= -1) {
-                                /* if error very large, put him back in position, but otherwise
-                                 * leave him on his own because this can introduce lag */
+                            if (dp <= -sqrt(dist.x * dist.x + dist.y * dist.y)) {
+                                /* if error very large, put it back in position, but otherwise
+                                 * leave it on its own because this can introduce lag */
                                 follower->setPosition(waypoints.front().position);
                             }
                             follower->pastSpeed = waypoints.front().speed;
                             follower->setSpeed(follower->pastSpeed);
-                            if (follower->follower) {
-                                follower->waypoints.push_back(waypoints.front());
-                            }
                             waypoints.pop_front();
                             if (waypoints.empty()) break;
                             dist = waypoints.front().position - follower->getPosition();
@@ -156,9 +153,11 @@ class Character : public Thing {
                         }
                     }
                 }
-                if (getFollowDistance() >= 18.0f) {
+                if (getFollowDistance() > 18.0f) {
+                    /* always catch up if too far behind/correct distance behind */
                     follower->setSpeed(follower->pastSpeed);
                 } else {
+                    /* otherwise, stop, but not if it's already stopped */
                     if (follower->getSpeed() != sf::Vector2f(0.0f, 0.0f)) {
                         follower->pastSpeed = follower->getSpeed();
                         follower->setSpeed(0.0f, 0.0f);

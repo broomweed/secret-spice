@@ -2,6 +2,7 @@
 #define SPICE_THING_HPP
 #include "Dialogue.hpp"
 #include "Animation.hpp"
+#include <math.h>
 /* This is the last common ancestor of GameObject and Character.
    Actually most things from GameObject go in here. However, they
    move in ways that are incompatible, so one cannot inherit from
@@ -35,7 +36,7 @@ class Thing : public sf::Drawable {
 
         virtual void setPosition(sf::Vector2f position_) {
             position = position_;
-            anim.setPosition(sf::Vector2f(position.x - boxLoc.left, position.y - boxLoc.top));
+            anim.setPosition(sf::Vector2f(roundf(position.x - boxLoc.left), roundf(position.y - boxLoc.top)));
             absLoc = sf::Rect<float>(position.x, position.y, boxLoc.width, boxLoc.height);
         }
 
