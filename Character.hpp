@@ -171,8 +171,6 @@ class Character : public Thing {
         }
 
         void createWaypoint() {
-            std::cout << "Create waypoint at " << position.x << ", " << position.y << std::endl;
-            //Waypoint wp = Waypoint(position, getSpeed());
             Waypoint wp = Waypoint(roundf(position.x), roundf(position.y), getSpeed());
             waypoints.push_back(wp);
         }
