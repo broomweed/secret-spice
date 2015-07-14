@@ -14,8 +14,7 @@ class Character : public Thing {
                     animation_id(0),
                     direction(0),
                     follower(NULL),
-                    partyLeader(false),
-                    pastSpeed(sf::Vector2f(0.0f, 0.0f)) {
+                    partyLeader(false) {
             setPosition(position_);
             Thing::setAnimation(anims[animation_id][direction]);
            /* 5 4 3
@@ -32,8 +31,7 @@ class Character : public Thing {
                     animation_id(0),
                     direction(0),
                     follower(NULL),
-                    partyLeader(false),
-                    pastSpeed(sf::Vector2f(0.0f, 0.0f)) {
+                    partyLeader(false) {
             setPosition(position_);
             setAnimationsFromSpriteSheet(ss, 220);
             Thing::setAnimation(anims[animation_id][direction]);
@@ -77,7 +75,10 @@ class Character : public Thing {
             if (old_animation_id != animation_id || old_direction != direction) {
                 Thing::setAnimation(anims[animation_id][direction]);
                 if (animation_id != 0 && follower) {
-                    createWaypoint(); // no waypoints for stopping moving
+                    if (partyLeader) {
+                        createWaypoint(); // no waypoints for stopping moving
+                    }
+                    position = sf::Vector2f(roundf(position.x), roundf(position.y)); // for smooth diagonals
                 }
             }
         }
@@ -121,37 +122,39 @@ class Character : public Thing {
             Thing::setAnimation(anims[animation_id][direction]);
         }
 
+        Thing *getFollower() {
+            return follower;
+        }
+
         bool partyLeader;
         std::list<Waypoint> waypoints;
-        sf::Vector2f pastSpeed;
 
         virtual void update() {
             Thing::update();
             if (follower) {
-                if (speed.x != 0.0f || speed.y != 0.0f) {
-                    if (!waypoints.empty()) { // don't do something random if no waypoints
-                        sf::Vector2f dist = waypoints.front().position - follower->getPosition();
-                        int dp = follower->pastSpeed.x * dist.x + follower->pastSpeed.y * dist.y;
-                        while (dp <= 0) {
-                            /* this is dot product: if it's 0 or negative, the follower is
-                             * on top of the waypoint or went past the waypoint, so put it
-                             * back and change its speed, and hand the waypoint along in
-                             * case there's someone else following the follower */
-                            if (dp <= -sqrt(dist.x * dist.x + dist.y * dist.y)) {
-                                /* if error very large, put it back in position, but otherwise
-                                 * leave it on its own because this can introduce lag */
-                                follower->setPosition(waypoints.front().position);
-                            }
-                            follower->pastSpeed = waypoints.front().speed;
-                            follower->setSpeed(follower->pastSpeed);
-                            if (follower->follower) {
-                                follower->waypoints.push_back(waypoints.front());
-                            }
-                            waypoints.pop_front();
-                            if (waypoints.empty()) break;
-                            dist = waypoints.front().position - follower->getPosition();
-                            dp = follower->pastSpeed.x * dist.x + follower->pastSpeed.y * dist.y;
+                if (!waypoints.empty()) { // don't do something random if no waypoints
+                    //sf::Vector2f dist = waypoints.front().position - follower->getPosition();
+                    sf::Vector2f dist = waypoints.front().position - sf::Vector2f(roundf(follower->getPosition().x), roundf(follower->getPosition().y));
+                    float dp = follower->pastSpeed.x * dist.x + follower->pastSpeed.y * dist.y;
+                    while (dp <= 0) {
+                        /* this is dot product: if it's 0 or negative, the follower is
+                         * on top of the waypoint or went past the waypoint, so put it
+                         * back and change its speed, and hand the waypoint along in
+                         * case there's someone else following the follower */
+                        if (dp <= -sqrt(dist.x * dist.x + dist.y * dist.y)) {
+                            /* if error very large, put it back in position, but otherwise
+                             * leave it on its own because this can introduce lag */
+                            follower->setPosition(waypoints.front().position);
                         }
+                        follower->pastSpeed = waypoints.front().speed;
+                        follower->setSpeed(follower->pastSpeed);
+                        if (follower->follower) {
+                            follower->waypoints.push_back(waypoints.front());
+                        }
+                        waypoints.pop_front();
+                        if (waypoints.empty()) break;
+                        dist = waypoints.front().position - follower->getPosition();
+                        dp = follower->pastSpeed.x * dist.x + follower->pastSpeed.y * dist.y;
                     }
                 }
                 if (getFollowDistance() > 18.0f) {
@@ -168,8 +171,14 @@ class Character : public Thing {
         }
 
         void createWaypoint() {
-            Waypoint wp = Waypoint(position, getSpeed());
+            std::cout << "Create waypoint at " << position.x << ", " << position.y << std::endl;
+            //Waypoint wp = Waypoint(position, getSpeed());
+            Waypoint wp = Waypoint(roundf(position.x), roundf(position.y), getSpeed());
             waypoints.push_back(wp);
+        }
+
+        void clearWaypoints() {
+            waypoints.clear();
         }
 
         void follow(Character& charToFollow) {
@@ -188,8 +197,8 @@ class Character : public Thing {
                 } else {
                     // add up the total distance between all your waypoints, plus the distance
                     // from you to the most recent one and from the least recent one to the follower
-                    xdist = follower->getPosition().x - waypoints.front().position.x;
-                    ydist = follower->getPosition().y - waypoints.front().position.y;
+                    xdist = waypoints.front().position.x - follower->getPosition().x;
+                    ydist = waypoints.front().position.y - follower->getPosition().y;
                     total += sqrt(xdist * xdist + ydist * ydist);
                     for (std::list<Waypoint>::iterator wp = waypoints.begin(); wp != waypoints.end(); wp++) { // jeez, c++
                         if (std::next(wp) == waypoints.end()) break;

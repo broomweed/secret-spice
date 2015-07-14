@@ -71,7 +71,11 @@ class Scene : public sf::Drawable {
 
         void update();
 
+        void transferThingToScene(Thing *toMove, Scene *transferring);
+
         void move_sprite(Thing& obj, float hmove, float vmove);
+
+        void checkLayerOrdering(Thing *object);
 
         void setVisible();
 

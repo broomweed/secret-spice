@@ -16,12 +16,14 @@ class Thing : public sf::Drawable {
                 is_copy(false),
                 active(true),
                 targetDir(0),
+                pastSpeed(sf::Vector2f(0.0f, 0.0f)),
                 tangible(true) {
             stopMoving();
         }
 
         // Stuff to handle party-member following:
         bool tangible;
+        sf::Vector2f pastSpeed;
 
         virtual bool hitTest(sf::Vector2f point) const {
             return absLoc.contains(point);
@@ -103,6 +105,8 @@ class Thing : public sf::Drawable {
         virtual int getDirection() { /* pass */ }
         virtual void setDirection(int dir) { /* pass */ }
         virtual void onTouch() { /* pass */ }
+        virtual void clearWaypoints() { /* pass */ }
+        virtual Thing *getFollower() { return NULL; }
 
         virtual void turn(sf::Vector2f dp) {
             turn(dp.x, dp.y);

@@ -100,13 +100,9 @@ void Scene::update() {
         // Hand off to the next scene
         Thing *mc = getMC();
         visible = false;
-        remove(mc);
-        mc->face(targetDir);
-        mc->setPosition(destCoords.x, destCoords.y);
-        mc->stopMoving();
-        transferring->setVisible();
-        transferring->add(mc);
+        transferThingToScene(mc, transferring);
         transferring->setMC(mc);
+        transferring->setVisible();
         for (int i = 0; i < transferring->getNumObjs(); i++) {
             // disable object if you're standing on top of it
             // immediately upon entering a scene
@@ -122,6 +118,23 @@ void Scene::update() {
     }
 }
 
+/* Recursively transfers items to a scene. It does it recursively so that an object's
+ * followers will always show up underneath it. This is pretty much only used during
+ * the scene-transferring sequence on the main character. */
+void Scene::transferThingToScene(Thing *toMove, Scene *transferring) {
+    if (toMove->getFollower()) {
+        transferThingToScene(toMove->getFollower(), transferring);
+    }
+    remove(toMove);
+    toMove->face(targetDir);
+    transferring->add(toMove);
+    toMove->setPosition(destCoords.x, destCoords.y);
+    toMove->pastSpeed = sf::Vector2f(0.0f, 0.0f);
+    toMove->stopMoving();
+    toMove->clearWaypoints();
+    transferring->checkLayerOrdering(toMove);
+}
+
 void Scene::move_sprite(Thing& obj, float hmove, float vmove) {
     int index = obj.sceneIndex;
     objs[index]->turn(hmove, vmove);
@@ -132,36 +145,49 @@ void Scene::move_sprite(Thing& obj, float hmove, float vmove) {
             if (i == index) continue; // obviously it's always touching itself
             if (objs[i]->hitTest(sf::Rect<float>(objs[index]->absLoc.left + hmove,
                             objs[index]->absLoc.top, objs[index]->absLoc.width, objs[index]->absLoc.height))) {
-                if (objs[i]->active && objs[i]->tangible) {
-                    hmove = 0.0f;
-                    objs[index]->checked = objs[i];
-                    objs[i]->onTouch();
+                if (objs[i]->active) {
+                    if (objs[i]->tangible) {
+                        hmove = 0.0f;
+                        objs[index]->checked = objs[i];
+                    }
+                    if (objs[index] == mainCharacter) {
+                        objs[i]->onTouch();
+                    }
                 }
             }
             if (objs[i]->hitTest(sf::Rect<float>(objs[index]->absLoc.left,
                             objs[index]->absLoc.top + vmove,
                             objs[index]->absLoc.width, objs[index]->absLoc.height))) {
-                if (objs[i]->active && objs[i]->tangible) {
-                    vmove = 0.0f;
-                    objs[index]->checked = objs[i];
-                    objs[i]->onTouch();
+                if (objs[i]->active) {
+                    if (objs[i]->tangible) {
+                        vmove = 0.0f;
+                        objs[index]->checked = objs[i];
+                    }
+                    if (objs[index] == mainCharacter) {
+                        objs[i]->onTouch();
+                    }
                 }
             }
         }
         objs[index]->move(hmove, vmove);
-        for (int i = 0; i < objs.size(); i++) {
-            // Swap objects if they passed behind/in front of each other
-            if ((objs[index]->getPosition().y < objs[i]->getPosition().y
-                        && objs[index]->drawDepth > objs[i]->drawDepth)
-                    || (objs[index]->getPosition().y > objs[i]->getPosition().y
-                        && objs[index]->drawDepth < objs[i]->drawDepth)) {
-                unsigned int tmp = objs[index]->drawDepth;
-                objs[index]->drawDepth = objs[i]->drawDepth;
-                objs[i]->drawDepth = tmp;
-            }
-        }
+        checkLayerOrdering(objs[index]);
     } else {
         objs[obj.sceneIndex]->stopMoving();
+    }
+}
+
+void Scene::checkLayerOrdering(Thing *object) {
+    int index = object->sceneIndex;
+    for (int i = 0; i < objs.size(); i++) {
+        // Swap objects if they passed behind/in front of each other
+        if ((objs[index]->getPosition().y < objs[i]->getPosition().y
+                    && objs[index]->drawDepth > objs[i]->drawDepth)
+                || (objs[index]->getPosition().y > objs[i]->getPosition().y
+                    && objs[index]->drawDepth < objs[i]->drawDepth)) {
+            unsigned int tmp = objs[index]->drawDepth;
+            objs[index]->drawDepth = objs[i]->drawDepth;
+            objs[i]->drawDepth = tmp;
+        }
     }
 }
 

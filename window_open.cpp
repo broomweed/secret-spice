@@ -155,6 +155,7 @@ int main(int argc, char **argv) {
     guy.tangible = false;
     guy2.tangible = false;
     guy3.tangible = false;
+    guy.partyLeader = true;
     guy2.follow(guy);
     guy3.follow(guy2);
 

@@ -19,6 +19,7 @@ class Door : public Thing {
             targetDir = targetDir_;
             anim = Animation();
             anim.addFrame(sf::Sprite(), 1000);
+            tangible = false;
         }
 
         void update() {
